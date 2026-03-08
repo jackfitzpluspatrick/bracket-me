@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --court: #c8813a;
+  --hardwood: #8b5e3c;
+  --chalk: #f5f0e8;
+  --ink: #1a1208;
+  --accent: #e8341c;
+  --accent2: #f5a623;
+  --net: #d4c9b0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--ink);
+  color: var(--chalk);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 119px,
+      rgba(255,255,255,0.03) 119px,
+      rgba(255,255,255,0.03) 120px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 59px,
+      rgba(255,255,255,0.03) 59px,
+      rgba(255,255,255,0.03) 60px
+    );
+}
+
+h1, h2, h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* Quiz animations */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes popIn {
+  0%   { transform: scale(0.85); opacity: 0; }
+  70%  { transform: scale(1.04); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.animate-slideIn  { animation: slideIn 0.45s ease both; }
+.animate-fadeIn   { animation: fadeIn  0.4s ease both; }
+.animate-popIn    { animation: popIn   0.5s cubic-bezier(.34,1.56,.64,1) both; }
+
+.champion-text {
+  background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent2));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Bracket lines */
+.bracket-line-right::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: rgba(212,201,176,0.35);
+}
+.bracket-connector {
+  border-right: 1px solid rgba(212,201,176,0.25);
+}
+
+/* Option button */
+.option-btn {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(212,201,176,0.18);
+}
+.option-btn:hover {
+  border-color: var(--accent2);
+  background: rgba(245,166,35,0.1);
+  transform: translateX(4px);
+}
+.option-btn.selected {
+  border-color: var(--accent2);
+  background: rgba(245,166,35,0.15);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--hardwood); border-radius: 3px; }
