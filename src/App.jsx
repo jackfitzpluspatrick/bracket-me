@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Quiz from './components/Quiz.jsx';
 import Bracket from './components/Bracket.jsx';
 import { buildUserWeights, simulateBracket, getChampionReason } from './logic/bracketEngine.js';
-import { COLOR_PROFILES } from './data/teams.js';
+import { COLOR_PROFILES } from './data/colorProfiles.js';
 
 const PHASES = { QUIZ: 'quiz', LOADING: 'loading', RESULTS: 'results' };
 
