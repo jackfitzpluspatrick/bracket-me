@@ -5,9 +5,10 @@ export default function Quiz({ onComplete }) {
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
   const [answers, setAnswers] = useState([]);
+  const [colorProfile, setColorProfile] = useState(null);
 
   const question = QUESTIONS[current];
-  const progress = ((current) / QUESTIONS.length) * 100;
+  const progress = (current / QUESTIONS.length) * 100;
 
   function handleSelect(option) {
     setSelected(option);
@@ -15,9 +16,16 @@ export default function Quiz({ onComplete }) {
 
   function handleNext() {
     if (!selected) return;
+
+    // Extract color profile if this is the painting question
+    if (question.isPaintingQuestion && selected.colorProfile) {
+      setColorProfile(selected.colorProfile);
+    }
+
     const newAnswers = [...answers, selected.weights];
+
     if (current + 1 >= QUESTIONS.length) {
-      onComplete(newAnswers);
+      onComplete({ answers: newAnswers, colorProfile: question.isPaintingQuestion ? selected.colorProfile : colorProfile });
     } else {
       setAnswers(newAnswers);
       setSelected(null);
@@ -52,10 +60,7 @@ export default function Quiz({ onComplete }) {
       </div>
 
       {/* Question card */}
-      <div
-        key={current}
-        className="w-full max-w-xl animate-slideIn"
-      >
+      <div key={current} className="w-full max-w-xl animate-slideIn">
         <div
           className="rounded-2xl p-8"
           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}
@@ -75,16 +80,19 @@ export default function Quiz({ onComplete }) {
                 onClick={() => handleSelect(option)}
                 className="option-btn text-left px-5 py-4 rounded-xl"
                 style={{
-                  background: selected === option
-                    ? 'rgba(245,166,35,0.12)'
-                    : 'rgba(255,255,255,0.03)',
-                  borderColor: selected === option
-                    ? 'var(--accent2)'
-                    : 'rgba(212,201,176,0.15)',
+                  background: selected === option ? 'rgba(245,166,35,0.12)' : 'rgba(255,255,255,0.03)',
+                  borderColor: selected === option ? 'var(--accent2)' : 'rgba(212,201,176,0.15)',
                   color: 'var(--chalk)',
                   animationDelay: `${i * 0.07}s`,
                 }}
               >
+                {/* Color swatch for painting question */}
+                {question.isPaintingQuestion && (
+                  <span
+                    className="inline-block w-3 h-3 rounded-full mr-3 align-middle"
+                    style={{ background: getSwatchColor(option.colorProfile) }}
+                  />
+                )}
                 <span className="text-sm md:text-base">{option.label}</span>
               </button>
             ))}
@@ -107,4 +115,16 @@ export default function Quiz({ onComplete }) {
       </div>
     </div>
   );
+}
+
+function getSwatchColor(profileIndex) {
+  const swatches = {
+    1: '#1a3a6b',
+    2: '#c0392b',
+    3: '#f0c040',
+    4: '#4a7c59',
+    5: '#1a1a1a',
+    6: '#e07020',
+  };
+  return swatches[profileIndex] || '#888';
 }

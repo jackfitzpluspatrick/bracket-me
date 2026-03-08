@@ -1,16 +1,27 @@
 import { scoreTeam } from '../logic/bracketEngine.js';
 
+const METRIC_LABELS = {
+  offRating:  'Offensive Rating',
+  defRating:  'Defensive Rating',
+  threePt:    '3-Point Shooting',
+  freeThrow:  'Free Throw',
+  rebounding: 'Rebounding',
+  passing:    'Passing / Assists',
+  turnovers:  'Ball Security',
+  momentum:   'Momentum',
+  starPower:  'Star Power',
+  experience: 'Experience',
+  legacy:     'Program Legacy',
+};
+
 function MatchupCard({ matchup, isChampion }) {
   const { teamA, teamB, winner } = matchup;
-
   return (
     <div
       className="rounded-lg overflow-hidden text-xs"
       style={{
         background: 'rgba(255,255,255,0.04)',
-        border: isChampion
-          ? '1px solid var(--accent2)'
-          : '1px solid rgba(212,201,176,0.1)',
+        border: isChampion ? '1px solid var(--accent2)' : '1px solid rgba(212,201,176,0.1)',
         minWidth: '130px',
       }}
     >
@@ -19,16 +30,11 @@ function MatchupCard({ matchup, isChampion }) {
           key={team.id}
           className="flex items-center gap-2 px-2 py-1.5"
           style={{
-            background: winner.id === team.id
-              ? 'rgba(245,166,35,0.14)'
-              : 'transparent',
+            background: winner.id === team.id ? 'rgba(245,166,35,0.14)' : 'transparent',
             borderBottom: i === 0 ? '1px solid rgba(212,201,176,0.08)' : 'none',
           }}
         >
-          <span
-            className="text-xs font-bold w-4 text-center shrink-0"
-            style={{ color: 'var(--accent2)', fontFamily: 'Bebas Neue' }}
-          >
+          <span className="text-xs font-bold w-4 text-center shrink-0" style={{ color: 'var(--accent2)', fontFamily: 'Bebas Neue' }}>
             {team.seed}
           </span>
           <span
@@ -51,17 +57,14 @@ function MatchupCard({ matchup, isChampion }) {
 
 function RoundColumn({ round, isLast }) {
   return (
-    <div className="flex flex-col" style={{ gap: isLast ? '0' : '8px' }}>
+    <div className="flex flex-col" style={{ gap: '8px' }}>
       <div
         className="text-center text-xs mb-3 uppercase tracking-widest"
         style={{ color: 'rgba(212,201,176,0.4)', fontFamily: 'Bebas Neue', letterSpacing: '0.12em' }}
       >
         {round.name}
       </div>
-      <div
-        className="flex flex-col justify-around h-full"
-        style={{ gap: '12px' }}
-      >
+      <div className="flex flex-col justify-around h-full" style={{ gap: '12px' }}>
         {round.matchups.map((matchup, i) => (
           <MatchupCard
             key={i}
@@ -77,17 +80,8 @@ function RoundColumn({ round, isLast }) {
 export default function Bracket({ bracketData, champion, reason, weights, onRetake }) {
   const { rounds } = bracketData;
 
-  const topMetrics = Object.entries(weights)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3);
-
-  const metricLabels = {
-    pace: 'Fast Pace',
-    threeRate: 'Three-Point Shooting',
-    defense: 'Defense',
-    starPower: 'Star Power',
-    experience: 'Experience',
-  };
+  // Sort metrics by user weight for DNA display
+  const sortedMetrics = Object.entries(weights).sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="min-h-screen px-4 py-10">
@@ -113,28 +107,25 @@ export default function Bracket({ bracketData, champion, reason, weights, onReta
         </p>
       </div>
 
-      {/* Your style breakdown */}
+      {/* Basketball DNA */}
       <div
-        className="max-w-md mx-auto rounded-2xl p-5 mb-10 animate-fadeIn"
+        className="max-w-lg mx-auto rounded-2xl p-5 mb-10 animate-fadeIn"
         style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}
       >
-        <h3
-          className="text-lg mb-4"
-          style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}
-        >
+        <h3 className="text-lg mb-4" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
           Your Basketball DNA
         </h3>
         <div className="flex flex-col gap-3">
-          {Object.entries(weights).map(([metric, val]) => (
+          {sortedMetrics.map(([metric, val]) => (
             <div key={metric}>
               <div className="flex justify-between text-xs mb-1">
-                <span style={{ color: 'var(--net)' }}>{metricLabels[metric]}</span>
+                <span style={{ color: 'var(--net)' }}>{METRIC_LABELS[metric] || metric}</span>
                 <span style={{ color: 'var(--accent2)' }}>{Math.round(val * 100)}%</span>
               </div>
               <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212,201,176,0.1)' }}>
                 <div
                   className="h-full rounded-full transition-all duration-700"
-                  style={{ width: `${val * 100}%`, background: 'var(--accent)' }}
+                  style={{ width: `${Math.min(val * 100 * 3, 100)}%`, background: 'var(--accent)' }}
                 />
               </div>
             </div>
@@ -153,21 +144,14 @@ export default function Bracket({ bracketData, champion, reason, weights, onReta
         >
           Full Bracket Results
         </h3>
-        <div
-          className="flex gap-6 items-start"
-          style={{ minWidth: `${rounds.length * 160}px` }}
-        >
+        <div className="flex gap-6 items-start" style={{ minWidth: `${rounds.length * 160}px` }}>
           {rounds.map((round, i) => (
-            <RoundColumn
-              key={i}
-              round={round}
-              isLast={i === rounds.length - 1}
-            />
+            <RoundColumn key={i} round={round} isLast={i === rounds.length - 1} />
           ))}
         </div>
       </div>
 
-      {/* Retake button */}
+      {/* Retake */}
       <div className="text-center">
         <button
           onClick={onRetake}

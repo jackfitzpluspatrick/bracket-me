@@ -1,5 +1,13 @@
-// 10 questions — pop culture mapped to basketball metrics
-// Metrics: pace, threeRate, defense, starPower, experience
+// 11 questions — 10 pop culture + 1 painting color picker
+// All answers produce CUMULATIVE weight deltas across 11 scored metrics:
+//   offRating, defRating, threePt, freeThrow, rebounding,
+//   passing, turnovers, momentum, starPower, experience, legacy
+//
+// Positive values BOOST a metric, negative values REDUCE it.
+// All deltas accumulate across every answer before the sim runs.
+//
+// 'color' is handled separately via the painting question —
+// it maps to COLOR_PROFILES in teams.js and applies a team-level boost.
 
 export const QUESTIONS = [
   {
@@ -9,19 +17,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Love Story — classic, timeless, storytelling',
-        weights: { experience: 1.8, defense: 1.0, pace: 0.3 },
+        weights: { experience: 1.5, legacy: 1.2, defRating: 0.5, offRating: -0.3 },
       },
       {
         label: 'Shake It Off — upbeat, fun, unstoppable energy',
-        weights: { pace: 1.8, threeRate: 1.0, starPower: 0.5 },
+        weights: { offRating: 1.5, momentum: 1.0, passing: 0.8, defRating: -0.3 },
       },
       {
         label: 'Bad Blood — aggressive, intense, zero chill',
-        weights: { pace: 1.5, starPower: 1.5, defense: 0.3 },
+        weights: { offRating: 1.2, starPower: 1.5, momentum: 0.8, turnovers: -0.5 },
       },
       {
         label: 'Anti-Hero — self-aware, calculated, cerebral',
-        weights: { defense: 1.5, experience: 1.2, threeRate: 0.6 },
+        weights: { defRating: 1.5, turnovers: 1.2, experience: 0.8, threePt: -0.3 },
       },
     ],
   },
@@ -32,19 +40,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Stranger Things — ensemble cast, everyone matters',
-        weights: { experience: 1.5, defense: 1.2, starPower: 0.5 },
+        weights: { passing: 1.5, rebounding: 1.0, experience: 0.8, starPower: -0.3 },
       },
       {
         label: 'Squid Game — ruthless, high stakes, one winner',
-        weights: { defense: 1.8, pace: 0.8, threeRate: 0.5 },
+        weights: { defRating: 1.8, turnovers: 1.2, momentum: 0.5, passing: -0.5 },
       },
       {
         label: 'Emily in Paris — flashy, fun, style over substance',
-        weights: { starPower: 1.5, threeRate: 1.5, defense: 0.2 },
+        weights: { starPower: 1.5, threePt: 1.5, offRating: 0.8, defRating: -0.8 },
       },
       {
         label: 'The Last Dance — dynasty, greatness, legacy',
-        weights: { starPower: 1.8, experience: 1.2, pace: 0.5 },
+        weights: { legacy: 1.8, starPower: 1.2, momentum: 1.0, turnovers: 0.5 },
       },
     ],
   },
@@ -55,19 +63,19 @@ export const QUESTIONS = [
     options: [
       {
         label: "Chick-fil-A — consistent, reliable, never misses",
-        weights: { experience: 1.8, defense: 1.2, pace: 0.3 },
+        weights: { freeThrow: 1.8, turnovers: 1.2, legacy: 0.8, threePt: -0.3 },
       },
       {
         label: "Chipotle — customizable, bold, always a line for a reason",
-        weights: { starPower: 1.5, pace: 1.0, threeRate: 0.8 },
+        weights: { starPower: 1.2, offRating: 1.0, passing: 1.0, defRating: -0.3 },
       },
       {
         label: "Raising Cane's — simple, focused, does one thing perfectly",
-        weights: { defense: 1.8, experience: 1.0, threeRate: 0.4 },
+        weights: { defRating: 1.5, rebounding: 1.2, turnovers: 1.0, threePt: -0.5 },
       },
       {
         label: 'Taco Bell — chaotic, creative, unpredictable',
-        weights: { threeRate: 2.0, pace: 1.2, defense: 0.2 },
+        weights: { threePt: 2.0, offRating: 1.0, momentum: 0.5, turnovers: -1.0 },
       },
     ],
   },
@@ -78,19 +86,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Drake — calculated, polished, always on top',
-        weights: { starPower: 1.8, experience: 1.0, pace: 0.5 },
+        weights: { legacy: 1.5, starPower: 1.5, freeThrow: 0.8, rebounding: -0.3 },
       },
       {
         label: 'Kendrick Lamar — cerebral, technical, built different',
-        weights: { defense: 1.5, experience: 1.5, threeRate: 0.5 },
+        weights: { defRating: 1.5, experience: 1.5, turnovers: 1.0, offRating: -0.3 },
       },
       {
         label: 'Travis Scott — chaotic energy, pure spectacle',
-        weights: { pace: 1.8, threeRate: 1.2, defense: 0.3 },
+        weights: { offRating: 1.8, momentum: 1.5, threePt: 0.8, turnovers: -0.8 },
       },
       {
         label: 'J. Cole — underrated, consistent, no features needed',
-        weights: { experience: 1.5, defense: 1.2, starPower: 0.8 },
+        weights: { experience: 1.5, passing: 1.2, freeThrow: 1.0, starPower: -0.3 },
       },
     ],
   },
@@ -101,19 +109,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Up at 6am, gym before anyone else wakes up',
-        weights: { defense: 1.5, pace: 1.2, experience: 0.8 },
+        weights: { defRating: 1.2, rebounding: 1.2, momentum: 1.0, passing: -0.3 },
       },
       {
         label: 'Slow morning, coffee, no plans till noon',
-        weights: { experience: 1.8, defense: 1.0, pace: 0.2 },
+        weights: { experience: 1.8, freeThrow: 1.2, legacy: 0.5, momentum: -0.5 },
       },
       {
         label: 'Brunch with the crew, loud table, good vibes',
-        weights: { pace: 1.5, starPower: 1.0, threeRate: 0.8 },
+        weights: { passing: 1.5, offRating: 1.0, starPower: 0.8, defRating: -0.3 },
       },
       {
         label: 'Spontaneous — see where the day takes you',
-        weights: { threeRate: 1.8, pace: 1.2, defense: 0.3 },
+        weights: { threePt: 1.8, momentum: 1.2, offRating: 0.5, turnovers: -0.8 },
       },
     ],
   },
@@ -124,19 +132,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Kobe Bryant — obsessive, relentless, Mamba mentality',
-        weights: { defense: 1.5, starPower: 1.5, pace: 0.5 },
+        weights: { defRating: 1.2, starPower: 1.8, momentum: 0.8, passing: -0.5 },
       },
       {
         label: 'LeBron James — all-around, team-first, chess not checkers',
-        weights: { experience: 1.5, starPower: 1.2, defense: 0.8 },
+        weights: { passing: 1.5, legacy: 1.2, rebounding: 1.0, threePt: -0.3 },
       },
       {
         label: 'Steph Curry — unconventional, limitless range, fun to watch',
-        weights: { threeRate: 2.0, pace: 1.2, defense: 0.3 },
+        weights: { threePt: 2.0, freeThrow: 1.2, offRating: 0.8, defRating: -0.5 },
       },
       {
         label: 'Draymond Green — defensive anchor, vocal leader, IQ over ego',
-        weights: { defense: 2.0, experience: 1.2, threeRate: 0.2 },
+        weights: { defRating: 2.0, passing: 1.2, turnovers: 1.0, starPower: -0.5 },
       },
     ],
   },
@@ -147,19 +155,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Top Gun: Maverick — elite talent, high speed, pure spectacle',
-        weights: { pace: 1.8, starPower: 1.5, defense: 0.2 },
+        weights: { offRating: 1.8, starPower: 1.5, momentum: 1.0, defRating: -0.5 },
       },
       {
         label: 'Moneyball — analytics, underdogs, outsmarting the system',
-        weights: { threeRate: 1.5, experience: 1.2, defense: 0.8 },
+        weights: { turnovers: 1.5, experience: 1.2, freeThrow: 1.0, starPower: -0.5 },
       },
       {
         label: 'The Dark Knight — methodical, intense, defense wins',
-        weights: { defense: 2.0, experience: 1.0, pace: 0.3 },
+        weights: { defRating: 2.0, turnovers: 1.2, experience: 0.8, offRating: -0.5 },
       },
       {
         label: 'Everything Everywhere All at Once — chaotic, creative, unhinged in the best way',
-        weights: { threeRate: 1.8, pace: 1.2, starPower: 0.5 },
+        weights: { threePt: 1.8, offRating: 1.2, momentum: 0.8, turnovers: -1.0 },
       },
     ],
   },
@@ -170,19 +178,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'Poster — always in the mix, main character energy',
-        weights: { starPower: 1.8, pace: 1.2, defense: 0.3 },
+        weights: { starPower: 1.8, offRating: 1.2, momentum: 0.8, defRating: -0.3 },
       },
       {
         label: 'Lurker — watching everything, giving nothing away',
-        weights: { defense: 1.8, experience: 1.2, threeRate: 0.3 },
+        weights: { defRating: 1.8, turnovers: 1.2, experience: 0.8, offRating: -0.3 },
       },
       {
         label: 'Chronically online — first to know every trend',
-        weights: { threeRate: 1.5, pace: 1.5, experience: 0.3 },
+        weights: { threePt: 1.5, momentum: 1.5, passing: 0.5, experience: -0.5 },
       },
       {
         label: 'Selective — curated, intentional, quality over quantity',
-        weights: { experience: 1.5, defense: 1.2, starPower: 0.8 },
+        weights: { freeThrow: 1.5, legacy: 1.2, turnovers: 1.0, momentum: -0.3 },
       },
     ],
   },
@@ -193,19 +201,19 @@ export const QUESTIONS = [
     options: [
       {
         label: 'A guaranteed $500',
-        weights: { defense: 1.5, experience: 1.5, threeRate: 0.3 },
+        weights: { freeThrow: 1.5, turnovers: 1.5, defRating: 0.8, threePt: -0.5 },
       },
       {
         label: 'A 1-in-3 shot at $2,000',
-        weights: { threeRate: 1.8, starPower: 1.0, defense: 0.4 },
+        weights: { threePt: 1.5, momentum: 1.2, offRating: 0.8, turnovers: -0.5 },
       },
       {
         label: 'A 1-in-10 shot at $10,000',
-        weights: { threeRate: 2.0, pace: 1.2, defense: 0.2 },
+        weights: { threePt: 2.0, offRating: 1.2, starPower: 0.5, defRating: -0.8 },
       },
       {
         label: 'You walk away — something feels off',
-        weights: { defense: 2.0, experience: 1.2, pace: 0.2 },
+        weights: { defRating: 2.0, experience: 1.2, turnovers: 1.0, offRating: -0.5 },
       },
     ],
   },
@@ -216,19 +224,48 @@ export const QUESTIONS = [
     options: [
       {
         label: 'The Dynasty — been here before, knows how to win',
-        weights: { starPower: 1.5, experience: 1.5, defense: 0.5 },
+        weights: { legacy: 2.0, experience: 1.5, freeThrow: 0.8, momentum: 0.5 },
       },
       {
         label: 'The Cinderella — nobody believed in them, nobody saw it coming',
-        weights: { threeRate: 1.8, pace: 1.2, starPower: 0.3 },
+        weights: { threePt: 1.8, momentum: 1.5, turnovers: 0.5, legacy: -0.8 },
       },
       {
         label: 'The Grinder — outworks everyone, ugly but effective',
-        weights: { defense: 1.8, experience: 1.5, pace: 0.3 },
+        weights: { defRating: 1.8, rebounding: 1.8, turnovers: 1.0, offRating: -0.3 },
       },
       {
         label: 'The Showtime Squad — here to entertain, run and gun',
-        weights: { pace: 2.0, threeRate: 1.2, defense: 0.2 },
+        weights: { offRating: 2.0, passing: 1.5, threePt: 1.0, defRating: -0.8 },
+      },
+    ],
+  },
+  // --- Painting / Color Question ---
+  {
+    id: 'q_color',
+    text: 'Which painting speaks to you most?',
+    emoji: '🎨',
+    isPaintingQuestion: true, // flag used by App.jsx to extract color profile
+    options: [
+      {
+        label: 'Starry Night — deep blues, swirling, calm intensity',
+        colorProfile: 1,
+        weights: { defRating: 0.8, turnovers: 0.5 },
+      },
+      {
+        label: 'The Scream — bold reds, raw emotion, high energy',
+        colorProfile: 2,
+        weights: { offRating: 0.8, starPower: 0.5 },
+      },
+      {
+        label: 'Sunflowers — warm golds, optimistic, shooting for the sun',
+        colorProfile: 3,
+        weights: { threePt: 0.8, freeThrow: 0.5 },
+      },
+      {
+        label: 'Water Lilies — soft greens, balanced, flowing',
+        colorProfile: 4,
+        weights: { rebounding: 0.8, passing: 0.5 },
       },
     ],
   },
