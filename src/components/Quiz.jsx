@@ -4,33 +4,44 @@ import { QUESTIONS } from '../data/questions.js';
 export default function Quiz({ onComplete }) {
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
-  const [answers, setAnswers] = useState([]);
-  const [colorProfile, setColorProfile] = useState(null);
+  // history stores { questionIndex, answer } where answer is weights or null (skipped)
+  const [history, setHistory] = useState([]);
 
   const question = QUESTIONS[current];
   const progress = (current / QUESTIONS.length) * 100;
-
-  function handleSelect(option) {
-    setSelected(option);
-  }
+  const isLast = current + 1 >= QUESTIONS.length;
 
   function handleNext() {
     if (!selected) return;
-
-    // Extract color profile if this is the painting question
-    if (question.isPaintingQuestion && selected.colorProfile) {
-      setColorProfile(selected.colorProfile);
-    }
-
-    const newAnswers = [...answers, selected.weights];
-
-    if (current + 1 >= QUESTIONS.length) {
-      onComplete({ answers: newAnswers, colorProfile: question.isPaintingQuestion ? selected.colorProfile : colorProfile });
+    const newHistory = [...history, { index: current, answer: selected.weights }];
+    if (isLast) {
+      const answers = newHistory.map(h => h.answer).filter(Boolean);
+      onComplete(answers);
     } else {
-      setAnswers(newAnswers);
+      setHistory(newHistory);
       setSelected(null);
       setCurrent(c => c + 1);
     }
+  }
+
+  function handleSkip() {
+    const newHistory = [...history, { index: current, answer: null }];
+    if (isLast) {
+      const answers = newHistory.map(h => h.answer).filter(Boolean);
+      onComplete(answers);
+    } else {
+      setHistory(newHistory);
+      setSelected(null);
+      setCurrent(c => c + 1);
+    }
+  }
+
+  function handleBack() {
+    if (current === 0) return;
+    const newHistory = history.slice(0, -1);
+    setHistory(newHistory);
+    setSelected(null);
+    setCurrent(c => c - 1);
   }
 
   return (
@@ -45,7 +56,7 @@ export default function Quiz({ onComplete }) {
         </p>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress */}
       <div className="w-full max-w-xl mb-8">
         <div className="flex justify-between text-xs mb-2 opacity-50" style={{ color: 'var(--net)' }}>
           <span>Question {current + 1} of {QUESTIONS.length}</span>
@@ -59,46 +70,52 @@ export default function Quiz({ onComplete }) {
         </div>
       </div>
 
-      {/* Question card */}
+      {/* Question */}
       <div key={current} className="w-full max-w-xl animate-slideIn">
-        <div
-          className="rounded-2xl p-8"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}
-        >
+        <div className="rounded-2xl p-8" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}>
           <div className="text-4xl mb-3">{question.emoji}</div>
-          <h2
-            className="text-2xl md:text-3xl mb-6"
-            style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.04em' }}
-          >
+          <h2 className="text-2xl md:text-3xl mb-6" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.04em' }}>
             {question.text}
           </h2>
-
-          <div className="flex flex-col gap-3">
+          <div className={`grid gap-3 ${question.options[0].image ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {question.options.map((option, i) => (
               <button
                 key={i}
-                onClick={() => handleSelect(option)}
-                className="option-btn text-left px-5 py-4 rounded-xl"
+                onClick={() => setSelected(option)}
+                className="option-btn text-left rounded-xl overflow-hidden"
                 style={{
                   background: selected === option ? 'rgba(245,166,35,0.12)' : 'rgba(255,255,255,0.03)',
                   borderColor: selected === option ? 'var(--accent2)' : 'rgba(212,201,176,0.15)',
                   color: 'var(--chalk)',
-                  animationDelay: `${i * 0.07}s`,
+                  padding: option.image ? '0' : '1rem 1.25rem',
                 }}
               >
-                {/* Color swatch for painting question */}
-                {question.isPaintingQuestion && (
-                  <span
-                    className="inline-block w-3 h-3 rounded-full mr-3 align-middle"
-                    style={{ background: getSwatchColor(option.colorProfile) }}
-                  />
+                {option.image && (
+                  <div className="relative">
+                    <img
+                      src={option.image}
+                      alt={option.label}
+                      className="w-full object-cover"
+                      style={{ height: '140px' }}
+                      onError={e => { e.target.style.display = 'none'; }}
+                    />
+                    {selected === option && (
+                      <div className="absolute inset-0 flex items-center justify-center"
+                        style={{ background: 'rgba(245,166,35,0.3)' }}>
+                        <span className="text-2xl">✓</span>
+                      </div>
+                    )}
+                  </div>
                 )}
-                <span className="text-sm md:text-base">{option.label}</span>
+                <span className="text-xs md:text-sm block" style={{ padding: option.image ? '0.5rem 0.75rem' : '0' }}>
+                  {option.label}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
+        {/* Action buttons */}
         <button
           onClick={handleNext}
           disabled={!selected}
@@ -110,21 +127,39 @@ export default function Quiz({ onComplete }) {
             letterSpacing: '0.1em',
           }}
         >
-          {current + 1 === QUESTIONS.length ? '🏀 Build My Bracket' : 'Next →'}
+          {isLast ? '🏀 Build My Bracket' : 'Next →'}
         </button>
+
+        {/* Back + Skip row */}
+        <div className="flex gap-3 mt-3">
+          <button
+            onClick={handleBack}
+            disabled={current === 0}
+            className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-200"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              color: current === 0 ? 'rgba(212,201,176,0.2)' : 'rgba(212,201,176,0.5)',
+              border: '1px solid rgba(212,201,176,0.1)',
+              cursor: current === 0 ? 'not-allowed' : 'pointer',
+              letterSpacing: '0.08em',
+            }}
+          >
+            ← Back
+          </button>
+          <button
+            onClick={handleSkip}
+            className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-200 hover:opacity-80"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              color: 'rgba(212,201,176,0.5)',
+              border: '1px solid rgba(212,201,176,0.1)',
+              letterSpacing: '0.08em',
+            }}
+          >
+            Skip →
+          </button>
+        </div>
       </div>
     </div>
   );
-}
-
-function getSwatchColor(profileIndex) {
-  const swatches = {
-    1: '#1a3a6b',
-    2: '#c0392b',
-    3: '#f0c040',
-    4: '#4a7c59',
-    5: '#1a1a1a',
-    6: '#e07020',
-  };
-  return swatches[profileIndex] || '#888';
 }
