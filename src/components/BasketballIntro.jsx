@@ -8,7 +8,7 @@ export default function BasketballIntro({ onContinue, onSkip }) {
             Now for the <span style={{ color: 'var(--accent)' }}>Basketball</span> side
           </h2>
           <p className="text-sm leading-relaxed opacity-60 max-w-sm mx-auto" style={{ color: 'var(--net)' }}>
-            5 quick strategy questions — how you think about the game shapes which teams your bracket favors. Skip if you'd rather let the pop culture answers do the work.
+            5 quick strategy questions — how you think about the game shapes which teams your bracket favors. Skip if you'd rather let the pop culture answers do all the work.
           </p>
         </div>
   
