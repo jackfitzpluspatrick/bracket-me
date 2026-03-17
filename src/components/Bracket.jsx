@@ -1,26 +1,29 @@
 const BBALL_METRICS = ['3pt', 'ft', 'reb', 'to', 'pass'];
+const OD_METRICS    = ['off', 'def'];
+const PROG_METRICS  = ['mom', 'star', 'leg', 'aca', 'tempo', 'con', 'bal', 'exp'];
 const DYN_ONLY      = ['mom', 'star', 'leg', 'aca', 'tempo', 'con', 'bal', 'exp'];
 
 const BBALL_LABELS = {
+  off: 'Offensive Efficiency', def: 'Defensive Efficiency',
   '3pt': '3PT Shooting', ft: 'Free Throws', reb: 'Rebounding',
   to: 'Turnovers', pass: 'Passing',
 };
 
 const PROG_LABELS = {
   mom: 'Momentum', star: 'Star Power', leg: 'Program Legacy',
-  aca: 'Academic Prowess', tempo: 'Pace of Play',
-  con: 'Consistency', bal: 'Balance', exp: 'Experience',
+  aca: 'Academic Prowess',
+  tempo: 'Pace of Play', con: 'Consistency', bal: 'Balance', exp: 'Experience',
 };
 
-const DYN_POLES = {
-  mom:   { neg: 'Building',   pos: 'Hot Streak'  },
-  star:  { neg: 'System',     pos: 'Star Power'  },
-  leg:   { neg: 'New Blood',  pos: 'Tradition'   },
-  aca:   { neg: 'Athletes',   pos: 'Academics'   },
-  tempo: { neg: 'Methodical', pos: 'Up-Tempo'    },
-  con:   { neg: 'Volatile',   pos: 'Consistent'  },
-  bal:   { neg: 'Specialist', pos: 'Balanced'    },
-  exp:   { neg: 'Youth',      pos: 'Veterans'    },
+const REGION_EMOJI = {
+  south: '🚀', east: '🏛️', midwest: '🌭', west: '💻',
+  fortworth1: '🤠', fortworth3: '🤠', sacramento2: '⛏️', sacramento4: '⛏️',
+};
+const REGION_NAME = {
+  south: 'Houston, TX · South', east: 'Washington, D.C. · East',
+  midwest: 'Chicago, IL · Midwest', west: 'San Jose, CA · West',
+  fortworth1: 'Fort Worth, TX · 1', fortworth3: 'Fort Worth, TX · 3',
+  sacramento2: 'Sacramento, CA · 2', sacramento4: 'Sacramento, CA · 4',
 };
 
 const CAT_CONFIG = {
@@ -31,167 +34,147 @@ const CAT_CONFIG = {
   priv: { label: 'School Type',    options: { private: 'Private', public: 'Public' } },
 };
 
-export default function ProfilePage({ profile, onContinue }) {
-  const odTotal = (profile.od?.off || 0) + (profile.od?.def || 0);
-  const offPct  = odTotal > 0 ? Math.round((profile.od?.off || 0) / odTotal * 100) : 50;
-  const defPct  = 100 - offPct;
-
-  const absTotal = BBALL_METRICS.reduce((s, m) => s + (profile.abs?.[m] || 0), 0);
-  const absPcts  = BBALL_METRICS.map(m => ({
-    key: m, label: BBALL_LABELS[m],
-    pct: absTotal > 0 ? Math.round((profile.abs?.[m] || 0) / absTotal * 100) : Math.round(100 / BBALL_METRICS.length),
-  }));
-
-  const topCat = (group) => Object.entries(profile[group] || {}).sort((a, b) => b[1] - a[1]);
-
+// ── Matchup Card ────────────────────────────────────────────────────
+function MatchupCard({ matchup, highlight }) {
+  const { teamA, teamB, winner } = matchup;
   return (
-    <div className="min-h-screen px-4 py-10 max-w-lg mx-auto">
-
-      {/* Header */}
-      <div className="text-center mb-8 animate-fadeIn">
-        <h1 className="text-5xl md:text-6xl" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.06em' }}>
-          YOUR <span style={{ color: 'var(--accent)' }}>PROFILE</span>
-        </h1>
-        <p className="mt-2 text-sm tracking-widest uppercase opacity-50" style={{ color: 'var(--net)' }}>
-          What your answers say about you
-        </p>
-      </div>
-
-      {/* Basketball Metrics */}
-      <div className="rounded-2xl p-5 mb-4 animate-fadeIn" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}>
-        <h3 className="text-lg mb-1" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
-          Basketball Metrics
-        </h3>
-        <p className="text-xs mb-4 opacity-40" style={{ color: 'var(--net)' }}>How you weight on-court performance</p>
-
-        {/* OFF/DEF split */}
-        <div className="mb-5">
-          <div className="flex justify-between text-xs mb-1" style={{ color: 'var(--net)' }}>
-            <span>Offensive Efficiency <span style={{ color: 'var(--accent)' }}>{offPct}%</span></span>
-            <span>Defensive Efficiency <span style={{ color: 'rgba(100,160,255,0.8)' }}>{defPct}%</span></span>
-          </div>
-          <div className="h-3 rounded-full overflow-hidden flex" style={{ background: 'rgba(212,201,176,0.1)' }}>
-            <div style={{ width: `${offPct}%`, background: 'var(--accent)', transition: 'width 0.5s' }} />
-            <div style={{ width: `${defPct}%`, background: 'rgba(100,160,255,0.5)', transition: 'width 0.5s' }} />
-          </div>
+    <div className="rounded-lg overflow-hidden text-xs" style={{
+      background: 'rgba(255,255,255,0.04)',
+      border: highlight ? '1px solid var(--accent2)' : '1px solid rgba(212,201,176,0.1)',
+      minWidth: '130px',
+    }}>
+      {[teamA, teamB].map((team, i) => (
+        <div key={team.id} className="flex items-center gap-1.5 px-2 py-1.5" style={{
+          background: winner.id === team.id ? 'rgba(245,166,35,0.14)' : 'transparent',
+          borderBottom: i === 0 ? '1px solid rgba(212,201,176,0.08)' : 'none',
+        }}>
+          <span className="font-bold shrink-0 w-4 text-center" style={{ color: 'var(--accent2)', fontFamily: 'Bebas Neue', fontSize: '11px' }}>
+            {team.seed}
+          </span>
+          <span className="truncate" style={{
+            color: winner.id === team.id ? 'var(--chalk)' : 'rgba(212,201,176,0.4)',
+            fontWeight: winner.id === team.id ? '600' : '400',
+            fontSize: '11px',
+          }}>
+            {team.name}
+          </span>
+          {winner.id === team.id && <span className="ml-auto shrink-0" style={{ color: 'var(--accent2)', fontSize: '10px' }}>✓</span>}
         </div>
+      ))}
+    </div>
+  );
+}
 
-        {/* Stat allocation */}
-        <p className="text-xs mb-3 opacity-40" style={{ color: 'var(--net)' }}>Stat allocation</p>
-        <div className="flex flex-col gap-2.5">
-          {absPcts.map(({ key, label, pct }) => (
-            <div key={key}>
-              <div className="flex justify-between text-xs mb-1">
-                <span style={{ color: 'var(--net)' }}>{label}</span>
-                <span style={{ color: 'var(--accent2)' }}>{pct}%</span>
-              </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(212,201,176,0.1)' }}>
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: 'var(--accent)' }} />
-              </div>
-            </div>
+// ── Round Column ────────────────────────────────────────────────────
+function RoundColumn({ round, isLast }) {
+  return (
+    <div className="flex flex-col shrink-0" style={{ gap: '6px', minWidth: '135px' }}>
+      <div className="text-center text-xs mb-2 uppercase" style={{ color: 'rgba(212,201,176,0.4)', fontFamily: 'Bebas Neue', letterSpacing: '0.1em', fontSize: '10px' }}>
+        {round.name}
+      </div>
+      <div className="flex flex-col justify-around h-full" style={{ gap: '8px' }}>
+        {round.matchups.map((matchup, i) => (
+          <MatchupCard key={i} matchup={matchup} highlight={isLast && round.matchups.length === 1} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Region Bracket (full rounds) ────────────────────────────────────
+function RegionBracket({ regionName, regionData }) {
+  const { rounds, winner } = regionData;
+  return (
+    <div className="rounded-2xl p-4 mb-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,201,176,0.08)' }}>
+      <div className="flex items-center justify-between mb-4">
+        <h4 style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.1em', fontSize: '18px' }}>
+          {REGION_EMOJI[regionName]} {REGION_NAME[regionName] || regionName} Region
+        </h4>
+        <div className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(245,166,35,0.15)', color: 'var(--accent2)', border: '1px solid var(--accent2)' }}>
+          #{winner.seed} {winner.name} wins
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <div className="flex gap-4 items-start" style={{ minWidth: `${rounds.length * 150}px` }}>
+          {rounds.map((round, i) => (
+            <RoundColumn key={i} round={round} isLast={i === rounds.length - 1} />
           ))}
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Program Metrics */}
-      <div className="rounded-2xl p-5 mb-4 animate-fadeIn" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}>
-        <h3 className="text-lg mb-1" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
-          Program Metrics
+// ── Main Bracket Component ──────────────────────────────────────────
+export default function Bracket({ bracketData, champion, reason, reason2, profile, label, onBack, onRetake }) {
+  const { regionResults, finalFourRound, championshipRound } = bracketData;
+  const isWomens = label === "Women's Bracket";
+  const finalFourLabel = isWomens
+    ? '🌵 Final Four & Championship · Phoenix, AZ'
+    : '🏁 Final Four & Championship · Indianapolis, IN';
+
+  return (
+    <div className="min-h-screen px-4 py-10 max-w-2xl mx-auto">
+
+      {/* Champion */}
+      <div className="text-center mb-10 animate-popIn">
+        <p className="text-sm uppercase tracking-widest mb-2 opacity-50" style={{ color: 'var(--net)' }}>
+          {label || 'Your 2025 Champion'}
+        </p>
+        <h1 className="champion-text" style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 10vw, 7rem)', lineHeight: 1 }}>
+          {champion.name}
+        </h1>
+        <div className="inline-flex items-center gap-2 mt-2">
+          <span className="px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ background: 'rgba(245,166,35,0.15)', color: 'var(--accent2)', border: '1px solid var(--accent2)' }}>
+            #{champion.seed} Seed
+          </span>
+        </div>
+        <p className="mt-4 max-w-md mx-auto text-sm leading-relaxed opacity-75" style={{ color: 'var(--net)' }}>
+          {reason}
+        </p>
+        {reason2 && (
+          <p className="mt-2 max-w-md mx-auto text-sm leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>
+            {reason2}
+          </p>
+        )}
+      </div>
+
+      {/* Final Four */}
+      <div className="rounded-2xl p-5 mb-6 animate-fadeIn"
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,201,176,0.08)' }}>
+        <h3 className="text-lg mb-5" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
+          {finalFourLabel}
         </h3>
-        <p className="text-xs mb-4 opacity-40" style={{ color: 'var(--net)' }}>Your program preferences and tendencies</p>
-
-        {/* DYN sliders */}
-        <p className="text-xs mb-3 opacity-40" style={{ color: 'var(--net)' }}>Directional preferences</p>
-        <div className="flex flex-col gap-4">
-          {DYN_ONLY.map(m => {
-            const val  = profile.dyn?.[m] || 0;
-            const pct  = Math.min(Math.abs(val) * 400, 100);
-            const isPos = val >= 0;
-            const poles = DYN_POLES[m];
-            // Position of dot: 50% center, moves left (negative) or right (positive)
-            const dotPos = 50 + (val * 200);
-            const clampedDot = Math.max(2, Math.min(98, dotPos));
-            return (
-              <div key={m}>
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span style={{ color: isPos ? 'rgba(212,201,176,0.35)' : 'var(--net)', fontSize: '11px' }}>{poles.neg}</span>
-                  <span style={{ fontFamily: 'Bebas Neue', letterSpacing: '0.06em', color: 'rgba(212,201,176,0.45)', fontSize: '10px' }}>{PROG_LABELS[m]}</span>
-                  <span style={{ color: isPos ? 'var(--net)' : 'rgba(212,201,176,0.35)', fontSize: '11px' }}>{poles.pos}</span>
-                </div>
-                <div className="h-2 rounded-full relative" style={{ background: 'rgba(212,201,176,0.1)' }}>
-                  {/* Track fill */}
-                  {isPos
-                    ? <div className="absolute top-0 bottom-0 rounded-full" style={{ left: '50%', width: `${pct / 2}%`, background: 'var(--accent2)' }} />
-                    : <div className="absolute top-0 bottom-0 rounded-full" style={{ right: '50%', width: `${pct / 2}%`, background: 'var(--accent)' }} />
-                  }
-                  {/* Center tick */}
-                  <div className="absolute top-0 bottom-0 w-px" style={{ left: '50%', background: 'rgba(212,201,176,0.3)' }} />
-                  {/* Dot */}
-                  <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full -translate-x-1/2" style={{
-                    left: `${clampedDot}%`,
-                    background: isPos ? 'var(--accent2)' : 'var(--accent)',
-                    border: '2px solid rgba(0,0,0,0.4)',
-                    boxShadow: '0 0 4px rgba(0,0,0,0.4)',
-                  }} />
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex gap-4 items-start overflow-x-auto">
+          <RoundColumn round={finalFourRound} isLast={false} />
+          <RoundColumn round={championshipRound} isLast={true} />
         </div>
       </div>
 
-      {/* School Preferences */}
-      <div className="rounded-2xl p-5 mb-6 animate-fadeIn" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.1)' }}>
-        <h3 className="text-lg mb-1" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
-          School Preferences
-        </h3>
-        <p className="text-xs mb-4 opacity-40" style={{ color: 'var(--net)' }}>Which programs feel most like you</p>
-        <div className="flex flex-col gap-5">
-          {Object.entries(CAT_CONFIG).map(([key, config]) => {
-            const sorted = topCat(key);
-            const topVal = sorted[0]?.[1] || 1;
-            return (
-              <div key={key}>
-                <p className="text-xs mb-2 uppercase tracking-widest" style={{ color: 'var(--accent2)', fontFamily: 'Bebas Neue', fontSize: '10px', letterSpacing: '0.14em' }}>
-                  {config.label}
-                </p>
-                <div className="flex gap-2">
-                  {sorted.map(([opt, val]) => {
-                    const pct = Math.round(val * 100);
-                    const isTop = val === topVal;
-                    const barH = Math.max(Math.round((val / topVal) * 40), 6);
-                    return (
-                      <div key={opt} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="w-full flex items-end justify-center rounded-lg overflow-hidden" style={{ height: '44px', background: 'rgba(212,201,176,0.06)' }}>
-                          <div className="w-full rounded-t-sm transition-all duration-700" style={{
-                            height: `${barH}px`,
-                            background: isTop ? 'var(--accent2)' : 'rgba(212,201,176,0.2)',
-                          }} />
-                        </div>
-                        <span className="text-center" style={{ color: isTop ? 'var(--chalk)' : 'rgba(212,201,176,0.4)', fontSize: '10px', fontWeight: isTop ? '600' : '400' }}>
-                          {config.options[opt] || opt}
-                        </span>
-                        <span style={{ color: isTop ? 'var(--accent2)' : 'rgba(212,201,176,0.3)', fontSize: '10px' }}>
-                          {pct}%
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* All Regional Brackets */}
+      <h3 className="text-lg mb-4" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
+        Regional Brackets
+      </h3>
+      {Object.keys(regionResults).map(region => (
+        <RegionBracket key={region} regionName={region} regionData={regionResults[region]} />
+      ))}
 
-      {/* Continue button */}
-      <button
-        onClick={onContinue}
-        className="w-full py-4 rounded-xl font-semibold tracking-widest uppercase text-sm transition-all duration-200 hover:opacity-90"
-        style={{ background: 'var(--accent)', color: 'var(--chalk)', letterSpacing: '0.1em' }}
-      >
-        🏀 Reveal My Champions →
-      </button>
+      {/* Actions */}
+      <div className="text-center flex gap-3 justify-center mt-8">
+        {onBack && (
+          <button onClick={onBack}
+            className="px-8 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-200 hover:opacity-80"
+            style={{ background: 'rgba(245,166,35,0.1)', color: 'var(--accent2)', border: '1px solid var(--accent2)', letterSpacing: '0.1em' }}>
+            ← Both Champions
+          </button>
+        )}
+        <button onClick={onRetake}
+          className="px-8 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-200 hover:opacity-80"
+          style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--net)', border: '1px solid rgba(212,201,176,0.2)', letterSpacing: '0.1em' }}>
+          ↩ Retake Quiz
+        </button>
+      </div>
     </div>
   );
 }

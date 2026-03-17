@@ -1,45 +1,109 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import HomePage from './components/HomePage.jsx';
 import Quiz from './components/Quiz.jsx';
+import BasketballIntro from './components/BasketballIntro.jsx';
 import Bracket from './components/Bracket.jsx';
 import ProfilePage from './components/ProfilePage.jsx';
+import SharePage from './components/SharePage.jsx';
+import BracketSettings from './components/BracketSettings.jsx';
 import { buildUserProfile, simulateBracket, simulateWBracket, getChampionReason } from './logic/bracketEngine.js';
 
-const PHASES = { QUIZ: 'quiz', LOADING: 'loading', PROFILE: 'profile', CHAMPIONS: 'champions', BRACKET: 'bracket' };
+const PHASES = {
+  HOME:        'home',
+  QUIZ_POP:    'quiz_pop',
+  BBALL_INTRO: 'bball_intro',
+  QUIZ_BB:     'quiz_bb',
+  SETTINGS:    'settings',
+  LOADING:     'loading',
+  PROFILE:     'profile',
+  CHAMPIONS:   'champions',
+  BRACKET:     'bracket',
+  SHARE:       'share',
+  TOOFEW:      'toofew',
+};
+
+const BASKETBALL_START = 6;
 
 export default function App() {
-  const [phase, setPhase] = useState(PHASES.QUIZ);
-  const [results, setResults] = useState(null);
-  const [viewing, setViewing] = useState(null);
+  const [phase, setPhase]           = useState(PHASES.HOME);
+  const [results, setResults]       = useState(null);
+  const [popAnswers, setPopAnswers] = useState([]);
+  const [allAnswers, setAllAnswers] = useState([]);
+  const viewingRef                  = useRef(null);
 
-  function handleQuizComplete(answers) {
+  function runSim(answers) {
+    const answered = answers.filter(Boolean);
+    if (answered.length < 4) {
+      setPhase(PHASES.TOOFEW);
+      return;
+    }
+    setAllAnswers(answers);
+    console.log('Setting phase to SETTINGS');
+    setPhase(PHASES.SETTINGS);
+  }
+
+  function handleSettingsContinue({ favoriteTeam, madness }) {
     setPhase(PHASES.LOADING);
     setTimeout(() => {
-      const profile     = buildUserProfile(answers);
-      const mensData    = simulateBracket(profile);
-      const womensData  = simulateWBracket(profile);
-      const mensReason  = getChampionReason(mensData.champion, profile);
+      const profile      = buildUserProfile(allAnswers.filter(Boolean));
+      const mensData     = simulateBracket(profile, { favoriteTeam, madness });
+      const womensData   = simulateWBracket(profile, { favoriteTeam, madness });
+      const mensReason   = getChampionReason(mensData.champion, profile);
       const womensReason = getChampionReason(womensData.champion, profile);
       setResults({ profile, mensData, womensData, mensReason, womensReason });
       setPhase(PHASES.PROFILE);
     }, 100);
   }
 
+  function handlePopComplete(answers) {
+    setPopAnswers(answers);
+    setPhase(PHASES.BBALL_INTRO);
+  }
+
+  function handleBballContinue() { setPhase(PHASES.QUIZ_BB); }
+  function handleBballSkip()     { runSim(popAnswers); }
+  function handleBballComplete(bbAnswers) { runSim([...popAnswers, ...bbAnswers]); }
+
   function handleRetake() {
     setResults(null);
-    setViewing(null);
-    setPhase(PHASES.QUIZ);
+    setPopAnswers([]);
+    setAllAnswers([]);
+    viewingRef.current = null;
+    setPhase(PHASES.HOME);
   }
 
   function handleViewBracket(gender) {
-    setViewing(gender);
+    viewingRef.current = gender;
     setPhase(PHASES.BRACKET);
   }
 
-  function handleBackToChampions() {
-    setPhase(PHASES.CHAMPIONS);
+  // ── HOME ──────────────────────────────────────────────────────────
+  if (phase === PHASES.HOME) {
+    return <HomePage onStart={() => setPhase(PHASES.QUIZ_POP)} />;
   }
 
-  // ── Loading ───────────────────────────────────────────────────────
+  // ── POP CULTURE QUIZ ──────────────────────────────────────────────
+  if (phase === PHASES.QUIZ_POP) {
+    return <Quiz onComplete={handlePopComplete} startIndex={0} endIndex={BASKETBALL_START} />;
+  }
+
+  // ── BASKETBALL INTRO ──────────────────────────────────────────────
+  if (phase === PHASES.BBALL_INTRO) {
+    return <BasketballIntro onContinue={handleBballContinue} onSkip={handleBballSkip} />;
+  }
+
+  // ── BASKETBALL QUIZ ───────────────────────────────────────────────
+  if (phase === PHASES.QUIZ_BB) {
+    return <Quiz onComplete={handleBballComplete} startIndex={BASKETBALL_START} />;
+  }
+
+  // ── SETTINGS ──────────────────────────────────────────────────────
+  if (phase === PHASES.SETTINGS) {
+    console.log('SETTINGS phase reached');
+    return <BracketSettings onContinue={handleSettingsContinue} />;
+  }
+
+  // ── LOADING ───────────────────────────────────────────────────────
   if (phase === PHASES.LOADING) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6">
@@ -54,17 +118,53 @@ export default function App() {
     );
   }
 
-  // ── Profile page ──────────────────────────────────────────────────
-  if (phase === PHASES.PROFILE && results) {
+  // ── TOO FEW ───────────────────────────────────────────────────────
+  if (phase === PHASES.TOOFEW) {
     return (
-      <ProfilePage
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-6 text-center">
+        <div className="text-6xl">🤔</div>
+        <h2 className="text-4xl" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.08em' }}>
+          Not Enough Data
+        </h2>
+        <p className="max-w-sm text-sm leading-relaxed opacity-70" style={{ color: 'var(--net)' }}>
+          You need to answer at least <strong style={{ color: 'var(--accent2)' }}>4 questions</strong> for your bracket to mean something.
+        </p>
+        <button onClick={handleRetake}
+          className="px-8 py-4 rounded-xl font-semibold uppercase tracking-widest text-sm"
+          style={{ background: 'var(--accent)', color: 'var(--chalk)', letterSpacing: '0.1em' }}>
+          ↩ Retake Quiz
+        </button>
+      </div>
+    );
+  }
+
+  // ── BRACKET ───────────────────────────────────────────────────────
+  // Check BRACKET before PROFILE so clicking champion goes directly here
+  if (phase === PHASES.BRACKET && results) {
+    const gender      = viewingRef.current;
+    const bracketData = gender === 'mens' ? results.mensData : results.womensData;
+    const reasonObj   = gender === 'mens' ? results.mensReason : results.womensReason;
+    const label       = gender === 'mens' ? "Men's Bracket" : "Women's Bracket";
+    return (
+      <Bracket
+        bracketData={bracketData}
+        champion={bracketData.champion}
+        reason={reasonObj.reason}
+        reason2={reasonObj.reason2}
         profile={results.profile}
-        onContinue={() => setPhase(PHASES.CHAMPIONS)}
+        label={label}
+        onBack={() => setPhase(PHASES.CHAMPIONS)}
+        onRetake={handleRetake}
       />
     );
   }
 
-  // ── Champions flash screen ────────────────────────────────────────
+  // ── PROFILE ───────────────────────────────────────────────────────
+  if (phase === PHASES.PROFILE && results) {
+    return <ProfilePage profile={results.profile} onContinue={() => setPhase(PHASES.CHAMPIONS)} />;
+  }
+
+  // ── CHAMPIONS ─────────────────────────────────────────────────────
   if (phase === PHASES.CHAMPIONS && results) {
     const { mensData, womensData, mensReason, womensReason } = results;
     return (
@@ -79,12 +179,10 @@ export default function App() {
         </div>
 
         <div className="w-full max-w-xl flex flex-col gap-5 animate-slideIn">
-          {/* Women's champion card — on top */}
-          <button
-            onClick={() => handleViewBracket('womens')}
+          {/* Women's first */}
+          <button onClick={() => handleViewBracket('womens')}
             className="w-full text-left rounded-2xl p-6 transition-all duration-200 hover:scale-[1.02]"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}
-          >
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs uppercase tracking-widest opacity-50" style={{ color: 'var(--net)', fontFamily: 'Bebas Neue' }}>
                 🏀 Women's Champion
@@ -102,17 +200,13 @@ export default function App() {
                 {womensData.champion.region} Region
               </span>
             </div>
-            <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>
-              {womensReason}
-            </p>
+            <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>{womensReason.reason}</p>
           </button>
 
-          {/* Men's champion card */}
-          <button
-            onClick={() => handleViewBracket('mens')}
+          {/* Men's */}
+          <button onClick={() => handleViewBracket('mens')}
             className="w-full text-left rounded-2xl p-6 transition-all duration-200 hover:scale-[1.02]"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}
-          >
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs uppercase tracking-widest opacity-50" style={{ color: 'var(--net)', fontFamily: 'Bebas Neue' }}>
                 🏀 Men's Champion
@@ -130,25 +224,24 @@ export default function App() {
                 {mensData.champion.region} Region
               </span>
             </div>
-            <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>
-              {mensReason}
-            </p>
+            <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>{mensReason.reason}</p>
           </button>
 
-          {/* Bottom actions */}
+          {/* Actions */}
           <div className="flex gap-3">
-            <button
-              onClick={() => setPhase(PHASES.PROFILE)}
-              className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-200 hover:opacity-80"
-              style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(212,201,176,0.6)', border: '1px solid rgba(212,201,176,0.15)', letterSpacing: '0.08em' }}
-            >
+            <button onClick={() => setPhase(PHASES.SHARE)}
+              className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all hover:opacity-80"
+              style={{ background: 'rgba(245,166,35,0.1)', color: 'var(--accent2)', border: '1px solid var(--accent2)', letterSpacing: '0.08em' }}>
+              📤 Share
+            </button>
+            <button onClick={() => setPhase(PHASES.PROFILE)}
+              className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all hover:opacity-80"
+              style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(212,201,176,0.6)', border: '1px solid rgba(212,201,176,0.15)', letterSpacing: '0.08em' }}>
               📊 My Profile
             </button>
-            <button
-              onClick={handleRetake}
-              className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-200 hover:opacity-80"
-              style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(212,201,176,0.5)', border: '1px solid rgba(212,201,176,0.1)', letterSpacing: '0.08em' }}
-            >
+            <button onClick={handleRetake}
+              className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all hover:opacity-80"
+              style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(212,201,176,0.5)', border: '1px solid rgba(212,201,176,0.1)', letterSpacing: '0.08em' }}>
               ↩ Retake
             </button>
           </div>
@@ -157,23 +250,17 @@ export default function App() {
     );
   }
 
-  // ── Full bracket view ─────────────────────────────────────────────
-  if (phase === PHASES.BRACKET && results && viewing) {
-    const bracketData = viewing === 'mens' ? results.mensData : results.womensData;
-    const reason      = viewing === 'mens' ? results.mensReason : results.womensReason;
-    const label       = viewing === 'mens' ? "Men's Bracket" : "Women's Bracket";
+  // ── SHARE ─────────────────────────────────────────────────────────
+  if (phase === PHASES.SHARE && results) {
     return (
-      <Bracket
-        bracketData={bracketData}
-        champion={bracketData.champion}
-        reason={reason}
-        profile={results.profile}
-        label={label}
-        onBack={handleBackToChampions}
-        onRetake={handleRetake}
+      <SharePage
+        mensChampion={results.mensData.champion}
+        womensChampion={results.womensData.champion}
+        answers={allAnswers}
+        onClose={() => setPhase(PHASES.CHAMPIONS)}
       />
     );
   }
 
-  return <Quiz onComplete={handleQuizComplete} />;
+  return <HomePage onStart={() => setPhase(PHASES.QUIZ_POP)} />;
 }
