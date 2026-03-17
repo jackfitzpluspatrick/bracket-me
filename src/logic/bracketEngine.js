@@ -191,47 +191,57 @@ export function getChampionReason(champion, profile) {
 
   const desc = {
     abs: {
-      '3pt': `${champion.name}'s long-range shooting matches your shoot-first mentality.`,
-      ft:    `${champion.name}'s composure at the line mirrors your precise approach.`,
-      reb:   `${champion.name}'s rebounding dominance aligns with your grind mindset.`,
-      to:    `${champion.name}'s ball security reflects your low-risk style.`,
-      pass:  `${champion.name}'s ball movement matches your team-first nature.`,
+      '3pt': { a: `${champion.name} stretch the floor and let it fly —`, b: `a shoot-first mentality you were built for.` },
+      ft:    { a: `${champion.name} cash in at the charity stripe —`, b: `an underappreciated fundamental you value.` },
+      reb:   { a: `${champion.name} grind on the glass every possession —`, b: `matching your relentless mindset.` },
+      to:    { a: `${champion.name} protect the ball and wreak havoc on opponent ball handlers —`, b: `exactly your kind of team.` },
+      pass:  { a: `${champion.name} move the ball and trust their teammates —`, b: `a team-first, selfless mentality you share.` },
     },
     dyn: {
-      // positive direction (team leans toward positive pole)
       pos: {
-        mom:   `${champion.name} is riding a hot streak that matches your energy perfectly.`,
-        star:  `${champion.name}'s star power speaks to your love of individual brilliance.`,
-        leg:   `${champion.name}'s storied history aligns with your respect for tradition.`,
-        aca:   `${champion.name}'s academic reputation matches your value for intelligence.`,
-        tempo: `${champion.name}'s up-tempo style perfectly matches your energy and pace.`,
-        con:   `${champion.name}'s consistency mirrors your steady, reliable approach.`,
-        bal:   `${champion.name}'s balance reflects your well-rounded personality.`,
-        exp:   `${champion.name}'s veteran roster aligns with your trust in experience.`,
+        mom:   { a: `${champion.name} are surging into the tournament on a hot streak —`, b: `riding the same wave of energy you are.` },
+        star:  { a: `${champion.name} have a bonafide star who takes over when it matters —`, b: `and you love watching that happen.` },
+        leg:   { a: `${champion.name} carry the weight of a storied program —`, b: `and your respect for tradition put them here.` },
+        tempo: { a: `${champion.name} play at full throttle from tip to buzzer —`, b: `perfectly matching your pace.` },
+        con:   { a: `${champion.name} show up the same way every single night —`, b: `the steady reliability you trust most.` },
+        bal:   { a: `${champion.name} don't have a weakness you can exploit —`, b: `a well-rounded team for a well-rounded person.` },
+        exp:   { a: `${champion.name} have a lot of experience and know how to win —`, b: `your trust in veteran poise paid off.` },
       },
-      // negative direction (team leans toward negative pole — you wanted that)
       neg: {
-        mom:   `${champion.name}'s underdog energy matches your love of a team still finding their stride.`,
-        star:  `${champion.name}'s cohesive unit mirrors your belief in the collective over the individual.`,
-        leg:   `${champion.name}'s fresh program speaks to your appetite for a new story.`,
-        aca:   `${champion.name}'s we-came-to-play mentality matches your all-business approach.`,
-        tempo: `${champion.name}'s methodical pace suits your preference for a slower, grind-it-out game.`,
-        con:   `${champion.name}'s unpredictability matches your taste for chaos and surprise.`,
-        bal:   `${champion.name}'s specialized identity mirrors your appreciation for a team that owns its style.`,
-        exp:   `${champion.name}'s young roster matches your belief in hungry, unproven talent.`,
+        mom:   { a: `${champion.name} are going to flip the script on their momentum at the right time —`, b: `and you saw it coming.` },
+        star:  { a: `${champion.name} win as a unit, not a one-man show —`, b: `exactly the collective you were rooting for.` },
+        leg:   { a: `${champion.name} are writing a new chapter, not living off an old one —`, b: `a fresh story you were ready to believe in.` },
+        tempo: { a: `${champion.name} slow it down and make every possession count —`, b: `the grind-it-out game you appreciate most.` },
+        con:   { a: `${champion.name} are unpredictable, dangerous, and exciting —`, b: `your taste for chaos is why they're here.` },
+        bal:   { a: `${champion.name} own their identity and double down on it —`, b: `a specificity of style you admire.` },
+        exp:   { a: `${champion.name} are young, hungry, and have nothing to lose —`, b: `your belief in fresh talent made the difference.` },
       },
     },
   };
 
   const getDesc = ({ key, metric, dir }) => {
+    if (metric === 'aca') return null;
     if (key === 'abs') return desc.abs[metric];
     return desc.dyn[dir >= 0 ? 'pos' : 'neg'][metric];
   };
 
-  const reason1 = getDesc(first)  || `${champion.name} is your perfect bracket match.`;
-  const reason2 = second ? (getDesc(second) || null) : null;
+  // Pick top two scorers that have sentences (skip aca), from different categories
+  const eligible = scores.filter(item => getDesc(item) !== null);
+  const fItem = eligible[0];
+  const sItem = eligible.find(e => e.key !== fItem.key) || eligible[1] || null;
 
-  return { reason: reason1, reason2 };
+  const fd = getDesc(fItem);
+  const sd = sItem ? getDesc(sItem) : null;
+
+  let combined;
+  if (!sd) {
+    combined = `${fd.a} ${fd.b}`;
+  } else {
+    const secondA = sd.a.replace(new RegExp('^' + champion.name + '\\b'), 'They');
+    combined = `${fd.a} ${fd.b} ${secondA} ${sd.b}`;
+  }
+
+  return { reason: combined, reason2: null };
 }
 
 // ─── Women's tournament simulation ────────────────────────────────────

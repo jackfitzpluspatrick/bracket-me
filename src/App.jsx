@@ -22,6 +22,13 @@ const PHASES = {
   TOOFEW:      'toofew',
 };
 
+const REGION_NAME = {
+  south: 'South Region', east: 'East Region',
+  midwest: 'Midwest Region', west: 'West Region',
+  fortworth1: 'Region 1 · Fort Worth', fortworth3: 'Region 3 · Fort Worth',
+  sacramento2: 'Region 2 · Sacramento', sacramento4: 'Region 4 · Sacramento',
+};
+
 const BASKETBALL_START = 6;
 
 export default function App() {
@@ -197,7 +204,7 @@ export default function App() {
                 #{womensData.champion.seed} Seed
               </span>
               <span className="text-xs px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--net)', border: '1px solid rgba(212,201,176,0.2)' }}>
-                {womensData.champion.region} Region
+                {REGION_NAME[womensData.champion.region] || womensData.champion.region}
               </span>
             </div>
             <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>{womensReason.reason}</p>
@@ -221,7 +228,7 @@ export default function App() {
                 #{mensData.champion.seed} Seed
               </span>
               <span className="text-xs px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--net)', border: '1px solid rgba(212,201,176,0.2)' }}>
-                {mensData.champion.region} Region
+                {REGION_NAME[mensData.champion.region] || mensData.champion.region}
               </span>
             </div>
             <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>{mensReason.reason}</p>

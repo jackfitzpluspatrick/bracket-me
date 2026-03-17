@@ -88,10 +88,10 @@ function RegionBracket({ regionName, regionData }) {
     <div className="rounded-2xl p-4 mb-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,201,176,0.08)' }}>
       <div className="flex items-center justify-between mb-4">
         <h4 style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.1em', fontSize: '18px' }}>
-          {REGION_EMOJI[regionName]} {REGION_NAME[regionName] || regionName} Region
+          {REGION_EMOJI[regionName]} {REGION_NAME[regionName] || regionName}
         </h4>
         <div className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(245,166,35,0.15)', color: 'var(--accent2)', border: '1px solid var(--accent2)' }}>
-          #{winner.seed} {winner.name} wins
+          #{winner.seed} {winner.name} 🏆
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -127,17 +127,12 @@ export default function Bracket({ bracketData, champion, reason, reason2, profil
         <div className="inline-flex items-center gap-2 mt-2">
           <span className="px-3 py-1 rounded-full text-xs font-semibold"
             style={{ background: 'rgba(245,166,35,0.15)', color: 'var(--accent2)', border: '1px solid var(--accent2)' }}>
-            #{champion.seed} Seed
+            #{champion.seed} Seed · {REGION_NAME[champion.region] || champion.region}
           </span>
         </div>
         <p className="mt-4 max-w-md mx-auto text-sm leading-relaxed opacity-75" style={{ color: 'var(--net)' }}>
-          {reason}
+          {reason}{reason2 ? ` ${reason2}` : ''}
         </p>
-        {reason2 && (
-          <p className="mt-2 max-w-md mx-auto text-sm leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>
-            {reason2}
-          </p>
-        )}
       </div>
 
       {/* Final Four */}
