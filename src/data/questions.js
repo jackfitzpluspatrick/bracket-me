@@ -333,7 +333,6 @@ export const QUESTIONS = [
     options: [
       {
         label: "Historical tour on Boston's Freedom Trail",
-        image: '/images/boston.jpg',
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.073, ft: 0.39, reb: 0.073, to: 0.39, pass: 0.074 },
@@ -348,7 +347,6 @@ export const QUESTIONS = [
       },
       {
         label: 'Sandboarding at Great Sand Dunes National Park',
-        image: '/images/dunes.jpg',
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.2, ft: 0.2, reb: 0.2, to: 0.2, pass: 0.2 },
@@ -363,7 +361,6 @@ export const QUESTIONS = [
       },
       {
         label: 'All-inclusive food and drink on a cruise in the Caribbean',
-        image: '/images/cruise.jpg',
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.788, ft: 0.053, reb: 0.053, to: 0.053, pass: 0.053 },
@@ -378,7 +375,6 @@ export const QUESTIONS = [
       },
       {
         label: 'The Catalina Wine Mixer',
-        image: '/images/catalina.jpg',
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.073, ft: 0.073, reb: 0.39, to: 0.39, pass: 0.074 },

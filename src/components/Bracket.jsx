@@ -20,10 +20,10 @@ const REGION_EMOJI = {
   fortworth1: '🤠', fortworth3: '🤠', sacramento2: '⛏️', sacramento4: '⛏️',
 };
 const REGION_NAME = {
-  south: 'Houston, TX · South', east: 'Washington, D.C. · East',
-  midwest: 'Chicago, IL · Midwest', west: 'San Jose, CA · West',
-  fortworth1: 'Fort Worth, TX · 1', fortworth3: 'Fort Worth, TX · 3',
-  sacramento2: 'Sacramento, CA · 2', sacramento4: 'Sacramento, CA · 4',
+  south: 'South Region', east: 'East Region',
+  midwest: 'Midwest Region', west: 'West Region',
+  fortworth1: 'Region 1 · Fort Worth', fortworth3: 'Region 3 · Fort Worth',
+  sacramento2: 'Region 2 · Sacramento', sacramento4: 'Region 4 · Sacramento',
 };
 
 const CAT_CONFIG = {
