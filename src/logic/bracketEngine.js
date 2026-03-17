@@ -191,11 +191,11 @@ export function getChampionReason(champion, profile) {
 
   const desc = {
     abs: {
-      '3pt': { a: `${champion.name} stretch the floor and let it fly —`, b: `a shoot-first mentality you were built for.` },
-      ft:    { a: `${champion.name} cash in at the charity stripe —`, b: `an underappreciated fundamental you value.` },
-      reb:   { a: `${champion.name} grind on the glass every possession —`, b: `matching your relentless mindset.` },
-      to:    { a: `${champion.name} protect the ball and wreak havoc on opponent ball handlers —`, b: `exactly your kind of team.` },
-      pass:  { a: `${champion.name} move the ball and trust their teammates —`, b: `a team-first, selfless mentality you share.` },
+      '3pt': { a: `${champion.name} stretches the floor and let it fly —`, b: `a shoot-first mentality you were built for.` },
+      ft:    { a: `${champion.name} cashes in at the charity stripe —`, b: `an underappreciated fundamental you value.` },
+      reb:   { a: `${champion.name} hustles on the glass every possession —`, b: `matching your relentless mindset.` },
+      to:    { a: `${champion.name} protects the ball and wreaks havoc on opponent ball handlers —`, b: `exactly your kind of team.` },
+      pass:  { a: `${champion.name} moves the ball and trusts their teammates —`, b: `a team-first, selfless mentality you share.` },
     },
     dyn: {
       pos: {
@@ -214,7 +214,7 @@ export function getChampionReason(champion, profile) {
         tempo: { a: `${champion.name} slow it down and make every possession count —`, b: `the grind-it-out game you appreciate most.` },
         con:   { a: `${champion.name} are unpredictable, dangerous, and exciting —`, b: `your taste for chaos is why they're here.` },
         bal:   { a: `${champion.name} own their identity and double down on it —`, b: `a specificity of style you admire.` },
-        exp:   { a: `${champion.name} are young, hungry, and have nothing to lose —`, b: `your belief in fresh talent made the difference.` },
+        exp:   { a: `${champion.name} are young and hungry to win —`, b: `your belief in fresh talent made the difference.` },
       },
     },
   };
