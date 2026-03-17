@@ -119,7 +119,7 @@ export default function Bracket({ bracketData, champion, reason, reason2, profil
       {/* Champion */}
       <div className="text-center mb-10 animate-popIn">
         <p className="text-sm uppercase tracking-widest mb-2 opacity-50" style={{ color: 'var(--net)' }}>
-          {label || 'Your 2025 Champion'}
+          {label || 'Your 2026 Champion'}
         </p>
         <h1 className="champion-text" style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 10vw, 7rem)', lineHeight: 1 }}>
           {champion.name}

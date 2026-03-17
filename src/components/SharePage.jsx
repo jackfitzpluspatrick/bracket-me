@@ -2,7 +2,9 @@ import { useState } from 'react';
 
 const CAPTION_TEMPLATES = [
   (w, m) => `I used Bracket Me to build my 2026 NCAA brackets. ${w} wins the women's tournament, ${m} cuts down the nets in the men's. Turns out my taste in cereal says a lot about basketball.`,
-
+  (w, m) => `My 2026 picks: ${w} (women's) and ${m} (men's). Bracket Me matched my personality to every team in the field — apparently I'm a ${m} kind of person.`,
+  (w, m) => `Bracket Me told me ${w} wins the women's and ${m} wins the men's based on nothing but how I answered 11 random questions. Hard to argue with the logic.`,
+  (w, m) => `${w} and ${m} — that's my 2026 NCAA bracket. Built by answering questions about Taylor Swift, Waffle House, and end-of-game strategy. Try it and see who yours picks.`,
 ];
 
 function buildCaption(womensName, mensName) {
@@ -47,7 +49,7 @@ export default function SharePage({ mensChampion, womensChampion, onClose }) {
             <h1 className="text-3xl" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.06em' }}>
               BRACKET <span style={{ color: 'var(--accent)' }}>ME</span>
             </h1>
-            <p className="text-xs opacity-30 mt-0.5" style={{ color: 'var(--net)' }}>2025 NCAA Tournament</p>
+            <p className="text-xs opacity-30 mt-0.5" style={{ color: 'var(--net)' }}>2026 NCAA Tournament</p>
           </div>
 
           <div className="px-6 py-5 flex flex-col gap-4">
