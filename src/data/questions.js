@@ -336,7 +336,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.073, ft: 0.39, reb: 0.073, to: 0.39, pass: 0.074 },
-          dyn:  { mom: -0.104, star: -0.114, leg: 0.25, aca: 0.25, tempo: -0.162, con: -0.119, bal: 0.25, exp: -0.141 },
+          dyn:  { mom: -0.104, star: -0.25, leg: 0.25, aca: 0.25, tempo: -0.162, con: -0.119, bal: -0.15, exp: -0.141 },
           clr:  { red: 0.328, blue: 0.34, other: 0.332 },
           mas:  { cats: 0.255, people: 0.253, birds: 0.252, other: 0.24 },
           set: { city: 0.75, suburban: 0.15, rural: 0.1 },
@@ -364,7 +364,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.788, ft: 0.053, reb: 0.053, to: 0.053, pass: 0.053 },
-          dyn:  { mom: 0.09, star: 0.063, leg: 0.087, aca: -0.25, tempo: -0.25, con: 0.089, bal: 0.042, exp: 0.091 },
+          dyn:  { mom: 0.09, star: -0.25, leg: 0.087, aca: -0.25, tempo: -0.25, con: 0.089, bal: 0.25, exp: 0.091 },
           clr:  { red: 0.32, blue: 0.333, other: 0.347 },
           mas:  { cats: 0.247, people: 0.252, birds: 0.253, other: 0.248 },
           set: { city: 0.1, suburban: 0.6, rural: 0.3 },
@@ -458,7 +458,7 @@ export const QUESTIONS = [
   // ── Q8 ─────────────────────────────────────────────────────────────
   {
     id: 'q8',
-    text: "Your team is up 3 with 5 seconds left. The opponent has possession, and you have committed 8 team fouls. You:",
+    text: "Your team is up 3 points with 5 seconds left. The opponent has possession, and you have committed 8 team fouls. You:",
     emoji: '🏀',
     options: [
       {
@@ -480,7 +480,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.32, def: 0.68 },
           abs:  { '3pt': 0.1, ft: 0.45, reb: 0.15, to: 0.2, pass: 0.1 },
-          dyn:  { mom: 0.25, star: -0.113, leg: -0.106, aca: -0.25, tempo: -0.082, con: 0.25, bal: -0.099, exp: 0.25 },
+          dyn:  { mom: 0.25, star: -0.113, leg: -0.106, aca: -0.25, tempo: -0.25, con: 0.25, bal: -0.099, exp: 0.25 },
           clr:  { red: 0.32, blue: 0.333, other: 0.347 },
           mas:  { cats: 0.249, people: 0.246, birds: 0.258, other: 0.247 },
           set:  { city: 0.322, suburban: 0.303, rural: 0.375 },
@@ -503,7 +503,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.1, ft: 0.1, reb: 0.15, to: 0.15, pass: 0.5 },
-          dyn:  { mom: -0.072, star: -0.049, leg: -0.055, aca: -0.25, tempo: 0.25, con: 0.25, bal: 0.25, exp: -0.25 },
+          dyn:  { mom: -0.25, star: -0.25, leg: -0.055, aca: -0.25, tempo: 0.25, con: 0.25, bal: 0.25, exp: -0.25 },
           clr:  { red: 0.317, blue: 0.336, other: 0.347 },
           mas:  { cats: 0.247, people: 0.249, birds: 0.255, other: 0.249 },
           set:  { city: 0.321, suburban: 0.305, rural: 0.374 },
@@ -517,7 +517,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.32, def: 0.68 },
           abs:  { '3pt': 0.1, ft: 0.45, reb: 0.1, to: 0.2, pass: 0.15 },
-          dyn:  { mom: 0.25, star: 0.25, leg: -0.063, aca: -0.066, tempo: -0.061, con: -0.088, bal: -0.063, exp: -0.082 },
+          dyn:  { mom: 0.25, star: 0.25, leg: -0.063, aca: -0.066, tempo: -0.061, con: -0.088, bal: -0.063, exp: 0.25 },
           clr:  { red: 0.318, blue: 0.335, other: 0.347 },
           mas:  { cats: 0.248, people: 0.247, birds: 0.257, other: 0.248 },
           set:  { city: 0.321, suburban: 0.305, rural: 0.374 },
@@ -540,7 +540,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.2, ft: 0.2, reb: 0.2, to: 0.2, pass: 0.2 },
-          dyn:  { mom: -0.083, star: -0.069, leg: 0.018, aca: 0.025, tempo: -0.25, con: 0.25, bal: 0.025, exp: 0.25 },
+          dyn:  { mom: 0.0, star: -0.069, leg: 0.018, aca: 0.025, tempo: -0.25, con: 0.25, bal: 0.025, exp: 0.25 },
           clr:  { red: 0.314, blue: 0.327, other: 0.359 },
           set:  { city: 0.321, suburban: 0.305, rural: 0.374 },
           area: { south: 0.25, midwest: 0.25, east: 0.25, west: 0.25 },
@@ -553,7 +553,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.2, ft: 0.2, reb: 0.2, to: 0.2, pass: 0.2 },
-          dyn:  { mom: 0.25, star: 0.069, leg: -0.018, aca: -0.025, tempo: 0.25, con: -0.25, bal: -0.025, exp: -0.25 },
+          dyn:  { mom: 0.0, star: 0.069, leg: -0.018, aca: -0.025, tempo: 0.25, con: -0.25, bal: -0.025, exp: -0.25 },
           clr:  { red: 0.318, blue: 0.335, other: 0.347 },
           set:  { city: 0.321, suburban: 0.305, rural: 0.374 },
           area: { south: 0.25, midwest: 0.25, east: 0.25, west: 0.25 },
@@ -575,7 +575,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.5, def: 0.5 },
           abs:  { '3pt': 0.056, ft: 0.056, reb: 0.056, to: 0.776, pass: 0.056 },
-          dyn:  { mom: 0.25, star: 0.25, leg: 0.064, aca: 0.065, tempo: -0.25, con: 0.045, bal: -0.25, exp: -0.25 },
+          dyn:  { mom: 0.25, star: 0.25, leg: 0.064, aca: 0.065, tempo: -0.25, con: 0.045, bal: -0.25, exp: 0.25 },
           clr:  { red: 0.32, blue: 0.334, other: 0.346 },
           set:  { city: 0.321, suburban: 0.305, rural: 0.374 },
           area: { south: 0.25, midwest: 0.25, east: 0.25, west: 0.25 },
@@ -588,7 +588,7 @@ export const QUESTIONS = [
         weights: {
           od:   { off: 0.32, def: 0.68 },
           abs:  { '3pt': 0.26, ft: 0.11, reb: 0.26, to: 0.11, pass: 0.26 },
-          dyn:  { mom: 0.003, star: -0.018, leg: -0.006, aca: 0.009, tempo: -0.011, con: 0.011, bal: 0.25, exp: -0.25 },
+          dyn:  { mom: 0.003, star: -0.018, leg: -0.006, aca: 0.009, tempo: -0.011, con: 0.011, bal: 0.25, exp: 0.0 },
           clr:  { red: 0.317, blue: 0.336, other: 0.347 },
           set:  { city: 0.322, suburban: 0.304, rural: 0.374 },
           area: { south: 0.25, midwest: 0.25, east: 0.25, west: 0.25 },
