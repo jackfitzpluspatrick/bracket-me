@@ -6,32 +6,42 @@ const REGION_NAME = {
   sacramento2: 'Sacramento 2', sacramento4: 'Sacramento 4',
 };
 
-function findDarkHorse(bracketData) {
+// roundIdx = last round they WON → display the round they advanced TO
+const MADE_IT_TO = {
+  0: 'Round of 32', 1: 'Sweet 16', 2: 'Elite Eight',
+  3: 'Final Four',  4: 'Championship', 5: 'National Champion',
+};
+
+export function findDarkHorse(bracketData) {
   if (!bracketData) return null;
   const candidates = [];
 
   Object.values(bracketData.regionResults).forEach(region => {
     region.rounds.forEach((round, roundIdx) => {
       round.matchups.forEach(m => {
-        if (m.winner && m.winner.seed >= 11) {
-          candidates.push({ team: m.winner, roundIdx, roundName: round.name });
-        }
+        if (m.winner && m.winner.seed >= 11)
+          candidates.push({ team: m.winner, roundIdx, roundName: MADE_IT_TO[roundIdx] });
       });
     });
   });
 
   bracketData.finalFourRound?.matchups.forEach(m => {
     if (m.winner && m.winner.seed >= 11)
-      candidates.push({ team: m.winner, roundIdx: 4, roundName: 'Final Four' });
+      candidates.push({ team: m.winner, roundIdx: 4, roundName: MADE_IT_TO[4] });
   });
 
   const champ = bracketData.championshipRound?.matchups[0]?.winner;
   if (champ && champ.seed >= 11)
-    candidates.push({ team: champ, roundIdx: 5, roundName: 'National Champion' });
+    candidates.push({ team: champ, roundIdx: 5, roundName: MADE_IT_TO[5] });
 
   if (!candidates.length) return null;
   candidates.sort((a, b) => b.roundIdx - a.roundIdx || a.team.seed - b.team.seed);
-  return candidates[0];
+  // Return the single furthest-advancing dark horse (deduplicated by team)
+  const seen = new Set();
+  for (const c of candidates) {
+    if (!seen.has(c.team.name)) { seen.add(c.team.name); return c; }
+  }
+  return null;
 }
 
 const ROUND_LABELS = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite Eight', 'Final Four', 'National Champion'];
@@ -39,7 +49,7 @@ const ROUND_LABELS = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite Eight', '
 const CAPTIONS = [
   (w, m) => `My 2026 NCAA brackets: ${w} (women's) and ${m} (men's). Built by answering questions about cereal mascots and end-of-game strategy. Try it — bracketme.app`,
   (w, m) => `Bracket Me matched my personality to the entire 2026 NCAA field. ${w} wins the women's, ${m} wins the men's. Hard to argue with the logic. bracketme.app`,
-  (w, m) => `${w} and ${m} — my 2026 picks according to a quiz about Taylor Swift and Waffle House. The science checks out. bracketme.app`,
+  (w, m) => `${w} and ${m} — my 2026 picks according to a quiz involving Taylor Swift and The Catalina Wine Mixer. The science checks out. bracketme.app`,
   (w, m) => `Just filled out my 2026 brackets without looking at a single stat. ${w} and ${m}. Bracket Me did the work. bracketme.app`,
 ];
 

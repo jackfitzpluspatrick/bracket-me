@@ -4,7 +4,7 @@ import Quiz from './components/Quiz.jsx';
 import BasketballIntro from './components/BasketballIntro.jsx';
 import Bracket from './components/Bracket.jsx';
 import ProfilePage from './components/ProfilePage.jsx';
-import SharePage from './components/SharePage.jsx';
+import SharePage, { findDarkHorse } from './components/SharePage.jsx';
 import BracketSettings from './components/BracketSettings.jsx';
 import { buildUserProfile, simulateBracket, simulateWBracket, getChampionReason } from './logic/bracketEngine.js';
 
@@ -174,6 +174,8 @@ export default function App() {
   // ── CHAMPIONS ─────────────────────────────────────────────────────
   if (phase === PHASES.CHAMPIONS && results) {
     const { mensData, womensData, mensReason, womensReason } = results;
+    const mensDH   = findDarkHorse(mensData);
+    const womensDH = findDarkHorse(womensData);
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
         <div className="text-center mb-10 animate-fadeIn">
@@ -207,6 +209,21 @@ export default function App() {
                 {REGION_NAME[womensData.champion.region] || womensData.champion.region}
               </span>
             </div>
+            {womensReason.reason && (
+              <p className="mt-3 text-xs leading-relaxed opacity-55 italic" style={{ color: 'var(--net)' }}>
+                "{womensReason.reason}"
+              </p>
+            )}
+            {womensDH && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(232,52,28,0.1)', color: 'var(--accent)', border: '1px solid rgba(232,52,28,0.2)', fontSize: '10px' }}>
+                  🐴 Dark Horse
+                </span>
+                <span className="text-xs opacity-50" style={{ color: 'var(--net)' }}>
+                  #{womensDH.team.seed} {womensDH.team.name} — {womensDH.roundName}
+                </span>
+              </div>
+            )}
           </button>
 
           {/* Men's */}
@@ -230,6 +247,21 @@ export default function App() {
                 {REGION_NAME[mensData.champion.region] || mensData.champion.region}
               </span>
             </div>
+            {mensReason.reason && (
+              <p className="mt-3 text-xs leading-relaxed opacity-55 italic" style={{ color: 'var(--net)' }}>
+                "{mensReason.reason}"
+              </p>
+            )}
+            {mensDH && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,166,35,0.1)', color: 'var(--accent2)', border: '1px solid rgba(245,166,35,0.2)', fontSize: '10px' }}>
+                  🐴 Dark Horse
+                </span>
+                <span className="text-xs opacity-50" style={{ color: 'var(--net)' }}>
+                  #{mensDH.team.seed} {mensDH.team.name} — {mensDH.roundName}
+                </span>
+              </div>
+            )}
           </button>
 
           {/* Actions */}
