@@ -27,7 +27,7 @@ const CAT_CONFIG = {
   clr:  { label: 'Color',          options: { red: 'Red', blue: 'Blue', other: 'Other' } },
   mas:  { label: 'Mascot',         options: { cats: 'Cats', people: 'People', birds: 'Birds', other: 'Other' } },
   set:  { label: 'Campus Setting', options: { city: 'City', suburban: 'Suburban', rural: 'Rural' } },
-  area: { label: 'School Region',  options: { south: 'South', midwest: 'Midwest', east: 'East', west: 'West' } },
+  area: { label: 'School Location',  options: { south: 'South', midwest: 'Midwest', east: 'East', west: 'West' } },
   priv: { label: 'School Type',    options: { private: 'Private', public: 'Public' } },
 };
 

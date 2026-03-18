@@ -189,12 +189,12 @@ export default function App() {
           {/* Women's first */}
           <button onClick={() => handleViewBracket('womens')}
             className="w-full text-left rounded-2xl p-6 transition-all duration-200 hover:scale-[1.02]"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}>
+            style={{ background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(232,52,28,0.4)' }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs uppercase tracking-widest opacity-50" style={{ color: 'var(--net)', fontFamily: 'Bebas Neue' }}>
                 🏀 Women's Champion
               </span>
-              <span className="text-xs opacity-40" style={{ color: 'var(--net)' }}>View bracket →</span>
+              <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: 'var(--accent)', color: 'white' }}>View Bracket →</span>
             </div>
             <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2rem, 8vw, 4rem)', color: 'var(--accent)', lineHeight: 1 }}>
               {womensData.champion.name}
@@ -207,18 +207,17 @@ export default function App() {
                 {REGION_NAME[womensData.champion.region] || womensData.champion.region}
               </span>
             </div>
-            <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>{womensReason.reason}</p>
           </button>
 
           {/* Men's */}
           <button onClick={() => handleViewBracket('mens')}
             className="w-full text-left rounded-2xl p-6 transition-all duration-200 hover:scale-[1.02]"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}>
+            style={{ background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(245,166,35,0.4)' }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs uppercase tracking-widest opacity-50" style={{ color: 'var(--net)', fontFamily: 'Bebas Neue' }}>
                 🏀 Men's Champion
               </span>
-              <span className="text-xs opacity-40" style={{ color: 'var(--net)' }}>View bracket →</span>
+              <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: 'var(--accent2)', color: '#111' }}>View Bracket →</span>
             </div>
             <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2rem, 8vw, 4rem)', color: 'var(--accent2)', lineHeight: 1 }}>
               {mensData.champion.name}
@@ -231,7 +230,6 @@ export default function App() {
                 {REGION_NAME[mensData.champion.region] || mensData.champion.region}
               </span>
             </div>
-            <p className="mt-3 text-xs leading-relaxed opacity-60" style={{ color: 'var(--net)' }}>{mensReason.reason}</p>
           </button>
 
           {/* Actions */}
@@ -263,6 +261,10 @@ export default function App() {
       <SharePage
         mensChampion={results.mensData.champion}
         womensChampion={results.womensData.champion}
+        mensReason={results.mensReason.reason}
+        womensReason={results.womensReason.reason}
+        mensBracketData={results.mensData}
+        womensBracketData={results.womensData}
         answers={allAnswers}
         onClose={() => setPhase(PHASES.CHAMPIONS)}
       />

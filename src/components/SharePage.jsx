@@ -1,25 +1,62 @@
 import { useState } from 'react';
 
-const CAPTION_TEMPLATES = [
-  (w, m) => `I used Bracket Me to build my 2026 NCAA brackets. ${w} wins the women's tournament, ${m} cuts down the nets in the men's. Turns out my taste in cereal says a lot about basketball.`,
-  (w, m) => `My 2026 picks: ${w} (women's) and ${m} (men's). Bracket Me matched my personality to every team in the field — apparently I'm a ${m} kind of person.`,
-  (w, m) => `Bracket Me told me ${w} wins the women's and ${m} wins the men's based on nothing but how I answered 11 random questions. Hard to argue with the logic.`,
-  (w, m) => `${w} and ${m} — that's my 2026 NCAA bracket. Built by answering questions about Taylor Swift, Waffle House, and end-of-game strategy. Try it and see who yours picks.`,
-];
+const REGION_NAME = {
+  south: 'South', east: 'East', midwest: 'Midwest', west: 'West',
+  fortworth1: 'Fort Worth 1', fortworth3: 'Fort Worth 3',
+  sacramento2: 'Sacramento 2', sacramento4: 'Sacramento 4',
+};
 
-function buildCaption(womensName, mensName) {
-  const template = CAPTION_TEMPLATES[Math.floor(Math.random() * CAPTION_TEMPLATES.length)];
-  return template(womensName, mensName);
+function findDarkHorse(bracketData) {
+  if (!bracketData) return null;
+  const candidates = [];
+
+  Object.values(bracketData.regionResults).forEach(region => {
+    region.rounds.forEach((round, roundIdx) => {
+      round.matchups.forEach(m => {
+        if (m.winner && m.winner.seed >= 11) {
+          candidates.push({ team: m.winner, roundIdx, roundName: round.name });
+        }
+      });
+    });
+  });
+
+  bracketData.finalFourRound?.matchups.forEach(m => {
+    if (m.winner && m.winner.seed >= 11)
+      candidates.push({ team: m.winner, roundIdx: 4, roundName: 'Final Four' });
+  });
+
+  const champ = bracketData.championshipRound?.matchups[0]?.winner;
+  if (champ && champ.seed >= 11)
+    candidates.push({ team: champ, roundIdx: 5, roundName: 'National Champion' });
+
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => b.roundIdx - a.roundIdx || a.team.seed - b.team.seed);
+  return candidates[0];
 }
 
-export default function SharePage({ mensChampion, womensChampion, onClose }) {
+const ROUND_LABELS = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite Eight', 'Final Four', 'National Champion'];
+
+const CAPTIONS = [
+  (w, m) => `My 2026 NCAA brackets: ${w} (women's) and ${m} (men's). Built by answering questions about cereal mascots and end-of-game strategy. Try it — bracketme.app`,
+  (w, m) => `Bracket Me matched my personality to the entire 2026 NCAA field. ${w} wins the women's, ${m} wins the men's. Hard to argue with the logic. bracketme.app`,
+  (w, m) => `${w} and ${m} — my 2026 picks according to a quiz about Taylor Swift and Waffle House. The science checks out. bracketme.app`,
+  (w, m) => `Just filled out my 2026 brackets without looking at a single stat. ${w} and ${m}. Bracket Me did the work. bracketme.app`,
+];
+
+export default function SharePage({ mensChampion, womensChampion, mensReason, womensReason, mensBracketData, womensBracketData, onClose }) {
   const mensName   = mensChampion?.name   || 'TBD';
   const womensName = womensChampion?.name || 'TBD';
 
-  const [caption]  = useState(() => buildCaption(womensName, mensName));
+  const mensDarkHorse   = findDarkHorse(mensBracketData);
+  const womensDarkHorse = findDarkHorse(womensBracketData);
+
+  const [caption]  = useState(() => {
+    const t = CAPTIONS[Math.floor(Math.random() * CAPTIONS.length)];
+    return t(womensName, mensName);
+  });
   const [copied, setCopied] = useState(false);
 
-  const url = window.location.href;
+  const url = 'bracketme.app';
   const fullText = `${caption}\n\n${url}`;
 
   function handleCopy() {
@@ -31,7 +68,7 @@ export default function SharePage({ mensChampion, womensChampion, onClose }) {
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: 'Bracket Me', text: caption, url });
+      navigator.share({ title: 'Bracket Me', text: caption, url: `https://${url}` });
     } else {
       handleCopy();
     }
@@ -42,48 +79,88 @@ export default function SharePage({ mensChampion, womensChampion, onClose }) {
       <div className="w-full max-w-sm">
 
         {/* Card */}
-        <div className="rounded-2xl overflow-hidden mb-6"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,201,176,0.15)' }}>
+        <div className="rounded-2xl overflow-hidden mb-5"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,201,176,0.12)' }}>
 
-          <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(212,201,176,0.08)' }}>
-            <h1 className="text-3xl" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.06em' }}>
-              BRACKET <span style={{ color: 'var(--accent)' }}>ME</span>
-            </h1>
-            <p className="text-xs opacity-30 mt-0.5" style={{ color: 'var(--net)' }}>2026 NCAA Tournament</p>
-          </div>
-
-          <div className="px-6 py-5 flex flex-col gap-4">
+          {/* Header */}
+          <div className="px-6 pt-5 pb-4 flex items-center justify-between"
+            style={{ borderBottom: '1px solid rgba(212,201,176,0.08)' }}>
             <div>
-              <p className="text-xs uppercase tracking-widest opacity-40 mb-1"
-                style={{ color: 'var(--net)', fontFamily: 'Bebas Neue', fontSize: '10px', letterSpacing: '0.12em' }}>
-                Women's Champion
-              </p>
-              <p style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(1.6rem, 6vw, 2.5rem)', color: 'var(--accent)', lineHeight: 1 }}>
-                {womensName}
-              </p>
-              <p className="text-xs mt-0.5 opacity-40" style={{ color: 'var(--net)' }}>
-                #{womensChampion?.seed} Seed · {womensChampion?.region}
-              </p>
+              <h1 className="text-3xl" style={{ fontFamily: 'Bebas Neue', color: 'var(--chalk)', letterSpacing: '0.06em' }}>
+                BRACKET <span style={{ color: 'var(--accent)' }}>ME</span>
+              </h1>
+              <p className="text-xs opacity-30" style={{ color: 'var(--net)' }}>2026 NCAA Tournament</p>
             </div>
-            <div style={{ borderTop: '1px solid rgba(212,201,176,0.08)', paddingTop: '1rem' }}>
-              <p className="text-xs uppercase tracking-widest opacity-40 mb-1"
-                style={{ color: 'var(--net)', fontFamily: 'Bebas Neue', fontSize: '10px', letterSpacing: '0.12em' }}>
-                Men's Champion
-              </p>
-              <p style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(1.6rem, 6vw, 2.5rem)', color: 'var(--accent2)', lineHeight: 1 }}>
-                {mensName}
-              </p>
-              <p className="text-xs mt-0.5 opacity-40" style={{ color: 'var(--net)' }}>
-                #{mensChampion?.seed} Seed · {mensChampion?.region}
-              </p>
-            </div>
+            <span className="text-xs opacity-30" style={{ color: 'var(--net)' }}>bracketme.app</span>
           </div>
 
-          <div className="px-6 pb-6">
-            <p className="text-xs leading-relaxed opacity-50" style={{ color: 'var(--net)', fontStyle: 'italic' }}>
-              "{caption}"
+          {/* Women's champion */}
+          <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(212,201,176,0.06)' }}>
+            <p className="text-xs uppercase tracking-widest mb-1"
+              style={{ color: 'var(--accent)', fontFamily: 'Bebas Neue', fontSize: '10px', letterSpacing: '0.14em', opacity: 0.8 }}>
+              Women's Champion
             </p>
+            <p style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(1.5rem, 6vw, 2.2rem)', color: 'var(--accent)', lineHeight: 1 }}>
+              {womensName}
+            </p>
+            <p className="text-xs mt-0.5 opacity-40" style={{ color: 'var(--net)' }}>
+              #{womensChampion?.seed} Seed · {REGION_NAME[womensChampion?.region] || womensChampion?.region}
+            </p>
+            {womensReason && (
+              <p className="text-xs mt-2 leading-relaxed opacity-55 italic" style={{ color: 'var(--net)' }}>
+                "{womensReason}"
+              </p>
+            )}
+            {womensDarkHorse && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs px-2 py-0.5 rounded-full"
+                  style={{ background: 'rgba(232,52,28,0.1)', color: 'var(--accent)', border: '1px solid rgba(232,52,28,0.2)', fontSize: '10px' }}>
+                  🐴 Dark Horse
+                </span>
+                <span className="text-xs opacity-50" style={{ color: 'var(--net)' }}>
+                  #{womensDarkHorse.team.seed} {womensDarkHorse.team.name} — {womensDarkHorse.roundName}
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Men's champion */}
+          <div className="px-6 pt-4 pb-5">
+            <p className="text-xs uppercase tracking-widest mb-1"
+              style={{ color: 'var(--accent2)', fontFamily: 'Bebas Neue', fontSize: '10px', letterSpacing: '0.14em', opacity: 0.8 }}>
+              Men's Champion
+            </p>
+            <p style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(1.5rem, 6vw, 2.2rem)', color: 'var(--accent2)', lineHeight: 1 }}>
+              {mensName}
+            </p>
+            <p className="text-xs mt-0.5 opacity-40" style={{ color: 'var(--net)' }}>
+              #{mensChampion?.seed} Seed · {REGION_NAME[mensChampion?.region] || mensChampion?.region}
+            </p>
+            {mensReason && (
+              <p className="text-xs mt-2 leading-relaxed opacity-55 italic" style={{ color: 'var(--net)' }}>
+                "{mensReason}"
+              </p>
+            )}
+            {mensDarkHorse && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs px-2 py-0.5 rounded-full"
+                  style={{ background: 'rgba(245,166,35,0.1)', color: 'var(--accent2)', border: '1px solid rgba(245,166,35,0.2)', fontSize: '10px' }}>
+                  🐴 Dark Horse
+                </span>
+                <span className="text-xs opacity-50" style={{ color: 'var(--net)' }}>
+                  #{mensDarkHorse.team.seed} {mensDarkHorse.team.name} — {mensDarkHorse.roundName}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Caption preview */}
+        <div className="rounded-xl px-4 py-3 mb-5"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,201,176,0.08)' }}>
+          <p className="text-xs leading-relaxed opacity-50" style={{ color: 'var(--net)', fontStyle: 'italic' }}>
+            "{caption}"
+          </p>
         </div>
 
         {/* Buttons */}

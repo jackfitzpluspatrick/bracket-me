@@ -116,6 +116,22 @@ export default function Bracket({ bracketData, champion, reason, reason2, profil
   return (
     <div className="min-h-screen px-4 py-10 max-w-2xl mx-auto">
 
+      {/* Top nav buttons */}
+      <div className="flex gap-3 justify-center mb-8">
+        {onBack && (
+          <button onClick={onBack}
+            className="px-5 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all hover:opacity-80"
+            style={{ background: 'rgba(245,166,35,0.1)', color: 'var(--accent2)', border: '1px solid var(--accent2)', letterSpacing: '0.1em' }}>
+            ← Both Champions
+          </button>
+        )}
+        <button onClick={onRetake}
+          className="px-5 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all hover:opacity-80"
+          style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--net)', border: '1px solid rgba(212,201,176,0.2)', letterSpacing: '0.1em' }}>
+          ↩ Retake Quiz
+        </button>
+      </div>
+
       {/* Champion */}
       <div className="text-center mb-10 animate-popIn">
         <p className="text-sm uppercase tracking-widest mb-2 opacity-50" style={{ color: 'var(--net)' }}>
