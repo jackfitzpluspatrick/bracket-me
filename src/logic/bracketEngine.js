@@ -251,7 +251,7 @@ export function getChampionReason(champion, profile) {
       },
       neg: {
         mom:   { a: `${champion.name} are going to flip the script on their momentum at the right time —`, b: `and you saw it coming.` },
-        star:  { a: `${champion.name} win as a unit, not a one-man show —`, b: `exactly the collective you were rooting for.` },
+        star:  { a: `${champion.name} win as a unit, not a one-person show —`, b: `exactly the collective you were rooting for.` },
         leg:   { a: `${champion.name} are writing a new chapter, not living off an old one —`, b: `a fresh story you were ready to believe in.` },
         tempo: { a: `${champion.name} slow it down and make every possession count —`, b: `the grind-it-out game you appreciate most.` },
         con:   { a: `${champion.name} are unpredictable, dangerous, and exciting —`, b: `your taste for chaos is why they're here.` },
