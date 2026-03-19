@@ -256,7 +256,7 @@ export function getChampionReason(champion, profile) {
         tempo: { a: `${champion.name} slow it down and make every possession count —`, b: `the grind-it-out game you appreciate most.` },
         con:   { a: `${champion.name} are unpredictable, dangerous, and exciting —`, b: `your taste for chaos is why they're here.` },
         bal:   { a: `${champion.name} own their identity and double down on it —`, b: `a specificity of style you admire.` },
-        exp:   { a: `${champion.name} are young, and hungry —`, b: `your belief in fresh talent made the difference.` },
+        exp:   { a: `${champion.name} are young, and hungry to win —`, b: `your belief in fresh talent made the difference.` },
       },
     },
   };
@@ -331,7 +331,8 @@ export function simulateWBracket(profile, opts = {}) {
   const scores = {};
   WTEAMS.forEach(t => { scores[t.id] = scoreTeam(t, profile); });
 
-  const REGIONS = ['fortworth1', 'sacramento4', 'sacramento2', 'fortworth3'];
+  const REGIONS = ['fortworth1', 'sacramento4', 'fortworth3', 'sacramento2'];
+  // Final Four: FW1 vs Sac4 (indices 0,1), FW3 vs Sac2 (indices 2,3)
   const regionResults = {};
   const finalFour = [];
 
@@ -375,8 +376,9 @@ export function simulateWBracket(profile, opts = {}) {
   });
 
   // Final Four: Fort Worth 1 vs Sacramento 4, Sacramento 2 vs Fort Worth 3
-  const sf1 = wMatchup(finalFour[0], finalFour[3], scores, opts, 4);
-  const sf2 = wMatchup(finalFour[1], finalFour[2], scores, opts, 4);
+  // Final Four: FW1 vs Sac4, FW3 vs Sac2
+  const sf1 = wMatchup(finalFour[0], finalFour[1], scores, opts, 4);
+  const sf2 = wMatchup(finalFour[2], finalFour[3], scores, opts, 4);
   const champion = wMatchup(sf1, sf2, scores, opts, 5);
 
   return {
@@ -384,10 +386,10 @@ export function simulateWBracket(profile, opts = {}) {
     finalFourRound: {
       name: 'Final Four',
       matchups: [
-        { teamA: finalFour[0], teamB: finalFour[3], winner: sf1,
-          scoreA: +scores[finalFour[0].id].toFixed(2), scoreB: +scores[finalFour[3].id].toFixed(2) },
-        { teamA: finalFour[1], teamB: finalFour[2], winner: sf2,
-          scoreA: +scores[finalFour[1].id].toFixed(2), scoreB: +scores[finalFour[2].id].toFixed(2) },
+        { teamA: finalFour[0], teamB: finalFour[1], winner: sf1,
+          scoreA: +scores[finalFour[0].id].toFixed(2), scoreB: +scores[finalFour[1].id].toFixed(2) },
+        { teamA: finalFour[2], teamB: finalFour[3], winner: sf2,
+          scoreA: +scores[finalFour[2].id].toFixed(2), scoreB: +scores[finalFour[3].id].toFixed(2) },
       ]
     },
     championshipRound: {
