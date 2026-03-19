@@ -463,7 +463,7 @@ export const TEAMS = [
       tempo: 0.07, con: 0.122, bal: -0.077, exp: -0.03,
       clr: 'red', mas: 'people', set: 'city',
       area: 'west', priv: 'private' },
-    { id: 'smu', name: 'SMU', seed: 11, region: 'midwest',
+    { id: 'miami_ohio', name: 'Miami Ohio', seed: 11, region: 'midwest',
       off: 72.1, def: 58.7,
       '3pt': 49.0, ft: 57.8, reb: 62.9, to: 61.7, pass: 70.4,
       seed_val: 24,
